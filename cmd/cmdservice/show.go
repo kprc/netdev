@@ -7,13 +7,13 @@ import (
 	"github.com/kprc/netdev/config"
 )
 
-func (cs *CmdSrv)ShowConfig(context.Context, *pbs.EmptyMessage) (*pbs.CommonResponse, error)  {
+func (cs *CmdSrv) ShowConfig(context.Context, *pbs.EmptyMessage) (*pbs.CommonResponse, error) {
 
-	nc:=config.GetNetDevConf()
+	nc := config.GetNetDevConf()
 
-	j,_:=json.MarshalIndent(*nc,"\t"," ")
+	j, _ := json.MarshalIndent(*nc, "\t", " ")
 
 	return &pbs.CommonResponse{
 		Msg: string(j),
-	},nil
+	}, nil
 }

@@ -8,20 +8,19 @@ import (
 	"sync"
 )
 
-const(
+const (
 	netdevHome = ".netdev"
 	confFile   = "conf.json"
-	cmdSock = ".cmd-sock"
+	cmdSock    = ".cmd-sock"
 )
 
 var (
-	netconf *NetDevConf
+	netconf       *NetDevConf
 	netconfOnceDo sync.Once
 )
 
-
 func GetNetDevConf() *NetDevConf {
-	if netconf == nil{
+	if netconf == nil {
 		netconfOnceDo.Do(func() {
 			netconf = defaultConf()
 			netconf.load()
@@ -32,14 +31,14 @@ func GetNetDevConf() *NetDevConf {
 	return netconf
 }
 
-func InitConfig()  {
-	nc:=defaultConf()
+func InitConfig() {
+	nc := defaultConf()
 	nc.save()
 }
 
-func (nc *NetDevConf)compareAndSave()   {
-	data,err:=json.Marshal(*nc)
-	if err!=nil{
+func (nc *NetDevConf) compareAndSave() {
+	data, err := json.Marshal(*nc)
+	if err != nil {
 		return
 	}
 
@@ -47,29 +46,28 @@ func (nc *NetDevConf)compareAndSave()   {
 
 	var dataDefault []byte
 	dataDefault, err = json.Marshal(ncdefault)
-	if err!=nil{
+	if err != nil {
 		return
 	}
 
-	if cp:= bytes.Compare(data,dataDefault);cp!=0{
+	if cp := bytes.Compare(data, dataDefault); cp != 0 {
 		nc.save()
 		return
 	}
 }
 
-
 func NetDevHome() string {
-	h,_:=tools.Home()
+	h, _ := tools.Home()
 
-	return path.Join(h,netdevHome)
+	return path.Join(h, netdevHome)
 }
 
 func ConfFile() string {
-	return path.Join(NetDevHome(),confFile)
+	return path.Join(NetDevHome(), confFile)
 }
 
-func CmdSockFile() string  {
-	return path.Join(NetDevHome(),cmdSock)
+func CmdSockFile() string {
+	return path.Join(NetDevHome(), cmdSock)
 }
 
 type WebSeverConf struct {
@@ -77,7 +75,7 @@ type WebSeverConf struct {
 }
 
 type UdpServerConf struct {
-	ListenServer string	`json:"listen_server"`
+	ListenServer string `json:"listen_server"`
 }
 
 type NetDevConf struct {
@@ -96,28 +94,27 @@ func defaultConf() *NetDevConf {
 	}
 }
 
-func (nc *NetDevConf)load() error  {
-	cfile:=ConfFile()
+func (nc *NetDevConf) load() error {
+	cfile := ConfFile()
 
-	fdata,err:=tools.OpenAndReadAll(cfile)
-	if err!= nil{
+	fdata, err := tools.OpenAndReadAll(cfile)
+	if err != nil {
 		return err
 	}
 
-	if err = json.Unmarshal(fdata,nc);err!=nil{
+	if err = json.Unmarshal(fdata, nc); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (nc *NetDevConf)save() error  {
-	cfile:=ConfFile()
+func (nc *NetDevConf) save() error {
+	cfile := ConfFile()
 
-	if j,err:=json.MarshalIndent(*nc,"\t"," ");err!=nil{
+	if j, err := json.MarshalIndent(*nc, "\t", " "); err != nil {
 		return err
-	}else {
-		return tools.Save2File(j,cfile)
+	} else {
+		return tools.Save2File(j, cfile)
 	}
 }
-

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/kprc/netdev/cmd/pbs"
 	"github.com/spf13/cobra"
-
 )
 
 var ShowCmd = &cobra.Command{
@@ -30,20 +29,20 @@ var showConfigCmd = &cobra.Command{
 	Run: showConfig,
 }
 
-func InitShow()  {
+func InitShow() {
 	ShowCmd.AddCommand(showConfigCmd)
 }
 
 func showConfig(cmd *cobra.Command, args []string) {
-	cli,err:=Dial2CmdServer()
-	if err!=nil{
+	cli, err := Dial2CmdServer()
+	if err != nil {
 		fmt.Println("can't connect to cmd service")
 		return
 	}
 	var resp *pbs.CommonResponse
 
-	resp,err = cli.ShowConfig( context.TODO(), &pbs.EmptyMessage{})
-	if err!=nil{
+	resp, err = cli.ShowConfig(context.TODO(), &pbs.EmptyMessage{})
+	if err != nil {
 		fmt.Println("call show config failed")
 		return
 	}

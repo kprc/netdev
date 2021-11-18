@@ -10,21 +10,20 @@ import (
 	"os"
 )
 
+func StartCmdService() {
 
-func StartCmdService()  {
-
-	if b:=tools.FileExists(config.CmdSockFile());b{
+	if b := tools.FileExists(config.CmdSockFile()); b {
 		os.RemoveAll(config.CmdSockFile())
 	}
 
-	l,err:=net.Listen("unix",config.CmdSockFile())
-	if err!=nil{
+	l, err := net.Listen("unix", config.CmdSockFile())
+	if err != nil {
 		panic(err)
 	}
 
 	cmdServer := grpc.NewServer()
 
-	pbs.RegisterCmdServiceServer(cmdServer,cmdServerInstance)
+	pbs.RegisterCmdServiceServer(cmdServer, cmdServerInstance)
 
 	reflection.Register(cmdServer)
 

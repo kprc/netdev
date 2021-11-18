@@ -13,18 +13,18 @@ func UnixConnect(context.Context, string) (net.Conn, error) {
 	return net.DialUnix("unix", nil, unixAddress)
 }
 
-func Dial2CmdServer() (pbs.CmdServiceClient,error) {
+func Dial2CmdServer() (pbs.CmdServiceClient, error) {
 
-	conn,err:=grpc.Dial(config.CmdSockFile(),grpc.WithInsecure(),grpc.WithContextDialer(UnixConnect))
-	if err!=nil{
+	conn, err := grpc.Dial(config.CmdSockFile(), grpc.WithInsecure(), grpc.WithContextDialer(UnixConnect))
+	if err != nil {
 		return nil, err
 	}
 
 	client := pbs.NewCmdServiceClient(conn)
 
-	return client,nil
+	return client, nil
 }
 
-func init()  {
+func init() {
 	InitShow()
 }

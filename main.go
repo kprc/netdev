@@ -56,7 +56,7 @@ func main() {
 
 func mainRun(_ *cobra.Command, _ []string) {
 
-	if b:=tools.FileExists(config.NetDevHome());!b{
+	if b := tools.FileExists(config.NetDevHome()); !b {
 		fmt.Println("please initial netdev server first!")
 		return
 	}
@@ -65,7 +65,6 @@ func mainRun(_ *cobra.Command, _ []string) {
 		fmt.Println(Version)
 		return
 	}
-
 
 	go cmdservice.StartCmdService()
 
@@ -77,7 +76,7 @@ func waitShutdownSignal() {
 	pid := strconv.Itoa(os.Getpid())
 	fmt.Printf("\n>>>>>>>>>>netdev start at pid(%s)<<<<<<<<<<\n", pid)
 
-	pidfile := path.Join(config.NetDevHome(),PidFileName)
+	pidfile := path.Join(config.NetDevHome(), PidFileName)
 
 	if err := ioutil.WriteFile(pidfile, []byte(pid), 0644); err != nil {
 		fmt.Println("failed to write running pid", err)
@@ -91,7 +90,6 @@ func waitShutdownSignal() {
 		syscall.SIGUSR2)
 
 	sig := <-sigCh
-
 
 	fmt.Printf("\n>>>>>>>>>>process finished(%s)<<<<<<<<<<\n", sig)
 }
