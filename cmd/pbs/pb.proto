@@ -1,0 +1,16 @@
+syntax = "proto3";
+package pbs;
+option go_package = "github.com/kprc/netdev/cmd/pbs/";
+
+service CmdService {
+    rpc ShowConfig (EmptyMessage) returns (CommonResponse) {}
+}
+
+
+message EmptyMessage {
+
+}
+
+message CommonResponse {
+    string msg = 1;
+}
