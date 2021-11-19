@@ -7,6 +7,7 @@ import (
 	"github.com/kprc/netdev/cmd/cmdclient"
 	"github.com/kprc/netdev/cmd/cmdservice"
 	"github.com/kprc/netdev/config"
+	"github.com/kprc/netdev/server"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
@@ -66,6 +67,8 @@ func mainRun(_ *cobra.Command, _ []string) {
 		return
 	}
 
+	go server.GetServerInstance().StartDaemon()
+
 	go cmdservice.StartCmdService()
 
 	waitShutdownSignal()
@@ -90,6 +93,8 @@ func waitShutdownSignal() {
 		syscall.SIGUSR2)
 
 	sig := <-sigCh
+
+	server.GetServerInstance().StopDaemon()
 
 	fmt.Printf("\n>>>>>>>>>>process finished(%s)<<<<<<<<<<\n", sig)
 }
