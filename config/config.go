@@ -19,6 +19,17 @@ var (
 	netconfOnceDo sync.Once
 )
 
+func defaultConf() *NetDevConf {
+	return &NetDevConf{
+		WConf: &WebSeverConf{
+			ListenServer: ":60010",
+		},
+		UConf: &UdpServerConf{
+			ListenServer: ":60012",
+		},
+	}
+}
+
 func GetNetDevConf() *NetDevConf {
 	if netconf == nil {
 		netconfOnceDo.Do(func() {
@@ -54,6 +65,21 @@ func (nc *NetDevConf) compareAndSave() {
 		nc.save()
 		return
 	}
+	var dataload []byte
+
+	ncload := &NetDevConf{}
+	ncload.load()
+
+	dataload, err = json.Marshal(ncload)
+	if err != nil {
+		return
+	}
+
+	if cp := bytes.Compare(dataload, dataDefault); cp != 0 {
+		nc.save()
+		return
+	}
+
 }
 
 func NetDevHome() string {
@@ -83,16 +109,7 @@ type NetDevConf struct {
 	UConf *UdpServerConf `json:"u_conf"`
 }
 
-func defaultConf() *NetDevConf {
-	return &NetDevConf{
-		WConf: &WebSeverConf{
-			ListenServer: ":60010",
-		},
-		UConf: &UdpServerConf{
-			ListenServer: ":60012",
-		},
-	}
-}
+
 
 func (nc *NetDevConf) load() error {
 	cfile := ConfFile()
