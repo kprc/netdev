@@ -1,2 +1,2 @@
 # netdev
-a private project for allian blockchain
+a private project for alliance blockchain
