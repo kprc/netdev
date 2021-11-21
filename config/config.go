@@ -27,6 +27,12 @@ func defaultConf() *NetDevConf {
 		UConf: &UdpServerConf{
 			ListenServer: ":60012",
 		},
+		Db: &DatabaseConf{
+			Driver: "mysql",
+			DbName: "netdev",
+			User:   "root",
+			Passwd: "Rickey@123",
+		},
 	}
 }
 
@@ -104,12 +110,18 @@ type UdpServerConf struct {
 	ListenServer string `json:"listen_server"`
 }
 
+type DatabaseConf struct {
+	Driver string `json:"driver"`
+	DbName string `json:"db_name"`
+	User   string `json:"user"`
+	Passwd string `json:"passwd"`
+}
+
 type NetDevConf struct {
 	WConf *WebSeverConf  `json:"w_conf"`
 	UConf *UdpServerConf `json:"u_conf"`
+	Db    *DatabaseConf  `json:"db"`
 }
-
-
 
 func (nc *NetDevConf) load() error {
 	cfile := ConfFile()

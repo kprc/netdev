@@ -1,8 +1,9 @@
 package webserver
 
 import (
-	"github.com/kprc/netdev/server/webserver/api"
 	"context"
+	"github.com/kprc/netdev/db/mysqlconn"
+	"github.com/kprc/netdev/server/webserver/api"
 	"net"
 	"net/http"
 	"regexp"
@@ -11,10 +12,10 @@ import (
 
 type NetDevWebServer struct {
 	listenAddr string
-	quit chan struct{}
-	server *http.Server
+	quit       chan struct{}
+	server     *http.Server
+	db         *mysqlconn.NetDevDbConn
 }
-
 
 type route struct {
 	pattern *regexp.Regexp
@@ -24,7 +25,6 @@ type route struct {
 type RegexpHandler struct {
 	routes []*route
 }
-
 
 func (rh *RegexpHandler) Handle(pattern string, handler http.Handler) {
 	rh.routes = append(rh.routes, &route{pattern: regexp.MustCompilePOSIX(pattern), handler: handler})
@@ -45,10 +45,11 @@ func (rh *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
-func NewNetDevWebServer(networkAddr string) *NetDevWebServer  {
-	ws:=&NetDevWebServer{
+func NewNetDevWebServer(networkAddr string, db *mysqlconn.NetDevDbConn) *NetDevWebServer {
+	ws := &NetDevWebServer{
 		listenAddr: networkAddr,
-		quit: make(chan struct{},8),
+		quit:       make(chan struct{}, 8),
+		db:         db,
 	}
 
 	return ws.init()
@@ -59,11 +60,13 @@ func (ws *NetDevWebServer) init() *NetDevWebServer {
 		routes: make([]*route, 0),
 	}
 
-	rh.HandleFunc(api.NetDevPathStr(api.FoodTowerPath), api.FoodTower)
-	rh.HandleFunc(api.NetDevPathStr(api.WaterPath), api.Water)
-	rh.HandleFunc(api.NetDevPathStr(api.WeighPath), api.Weigh)
-	rh.HandleFunc(api.NetDevPathStr(api.UniphasePath), api.UniPhase)
-	rh.HandleFunc(api.NetDevPathStr(api.TriphasePath), api.Triphase)
+	wapi := api.NewWebApi(ws.db)
+
+	rh.HandleFunc(api.NetDevPathStr(api.FoodTowerPath), wapi.FoodTower)
+	rh.HandleFunc(api.NetDevPathStr(api.WaterPath), wapi.Water)
+	rh.HandleFunc(api.NetDevPathStr(api.WeighPath), wapi.Weigh)
+	rh.HandleFunc(api.NetDevPathStr(api.UniphasePath), wapi.UniPhase)
+	rh.HandleFunc(api.NetDevPathStr(api.TriphasePath), wapi.Triphase)
 
 	server := &http.Server{
 		Handler: rh,
@@ -74,18 +77,16 @@ func (ws *NetDevWebServer) init() *NetDevWebServer {
 	return ws
 }
 
-func (ws *NetDevWebServer)Start() error  {
-	if l,err:=net.Listen("tcp4",ws.listenAddr);err!=nil{
+func (ws *NetDevWebServer) Start() error {
+	if l, err := net.Listen("tcp4", ws.listenAddr); err != nil {
 		return err
-	}else{
+	} else {
 		go ws.server.Serve(l)
 		return nil
 	}
 }
 
-func (ws *NetDevWebServer)ShutDown() error  {
-	ctx,_:=context.WithTimeout(context.Background(),5*time.Second)
-
+func (ws *NetDevWebServer) ShutDown() error {
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	return ws.server.Shutdown(ctx)
 }
-
