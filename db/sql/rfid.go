@@ -7,7 +7,7 @@ import (
 )
 
 func InsertRfid(db *mysqlconn.NetDevDbConn, mr *msg.MsgRFID) error {
-	if _, err := db.Exec("Insert into label_data (room,label_id,x,y,attr,extend,timestamp ) VALUES (?,?,?,?,?,?,?)",
+	if _, err := db.Exec("Insert into label_data (room,label_id,x,y,attr,extend,createtime ) VALUES (?,?,?,?,?,?,?)",
 		mr.Room,
 		mr.LabelId,
 		mr.X,

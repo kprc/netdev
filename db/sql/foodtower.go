@@ -7,7 +7,7 @@ import (
 )
 
 func InsertFoodWater(db *mysqlconn.NetDevDbConn, ft *msg.MsgFoodTower) error {
-	if _, err := db.Exec("Insert into food_tower (room,weight,timestamp ) VALUES (?,?,?)",
+	if _, err := db.Exec("Insert into food_tower (room,weight,createtime ) VALUES (?,?,?)",
 		ft.Room,
 		ft.Weight,
 		"FROM_UNIXTIME("+strconv.FormatInt(ft.Timestamp, 10)+")"); err != nil {
