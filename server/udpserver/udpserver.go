@@ -2,6 +2,7 @@ package udpserver
 
 import (
 	"errors"
+	"fmt"
 	"github.com/kprc/netdev/db/mysqlconn"
 	"net"
 	"strconv"
@@ -45,6 +46,8 @@ func (us *NetDevUdpServer) Start() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("udp server start at:",port)
 
 	go us.serve()
 

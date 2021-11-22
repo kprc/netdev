@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"context"
+	"fmt"
 	"github.com/kprc/netdev/db/mysqlconn"
 	"github.com/kprc/netdev/server/webserver/api"
 	"net"
@@ -81,6 +82,7 @@ func (ws *NetDevWebServer) Start() error {
 	if l, err := net.Listen("tcp4", ws.listenAddr); err != nil {
 		return err
 	} else {
+		fmt.Println("web server start at :", ws.listenAddr)
 		go ws.server.Serve(l)
 		return nil
 	}

@@ -2,19 +2,24 @@ package sql
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/kprc/netdev/db/mysqlconn"
 	"github.com/kprc/netdev/server/webserver/msg"
-	"strconv"
 	"time"
 )
 
 func InsertWater(db *mysqlconn.NetDevDbConn, water *msg.MsgWater) error {
+
+	t := time.Unix(water.Timestamp,0)
 	if _, err := db.Exec("Insert into water_usage (room,count,createtime ) VALUES (?,?,?)",
 		water.Room,
 		water.Count,
-		"FROM_UNIXTIME("+strconv.FormatInt(water.Timestamp, 10)+")"); err != nil {
+		t); err != nil {
+
+		fmt.Println(err)
 		return err
 	}
+
 
 	return nil
 }
@@ -49,10 +54,11 @@ func SelectWater(db *mysqlconn.NetDevDbConn, beginTime, endTime int64) ([]*msg.M
 }
 
 func InsertWaterBlock(db *mysqlconn.NetDevDbConn, water *msg.MsgWater) error {
+	t:=time.Unix(water.Timestamp,0)
 	if _, err := db.Exec("Insert into water_usage_blockchain (room,count,createtime ) VALUES (?,?,?)",
 		water.Room,
 		water.Count,
-		"FROM_UNIXTIME("+strconv.FormatInt(water.Timestamp, 10)+")"); err != nil {
+		t); err != nil {
 		return err
 	}
 	return nil

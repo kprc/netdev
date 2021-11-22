@@ -3,17 +3,18 @@ package sql
 import (
 	"github.com/kprc/netdev/db/mysqlconn"
 	"github.com/kprc/netdev/server/webserver/msg"
-	"strconv"
+	"time"
 )
 
 func InsertWeigh(db *mysqlconn.NetDevDbConn, weigh *msg.MsgWeigh) error {
+	t:=time.Unix(weigh.Timestamp,0)
 	if _, err := db.Exec("Insert into weigh (room,mao_weigh,pi_weigh,jing_weigh,unit,createtime ) VALUES (?,?,?,?,?,?)",
 		weigh.Room,
 		weigh.Mao,
 		weigh.Pi,
 		weigh.Jing,
 		weigh.Unit,
-		"FROM_UNIXTIME("+strconv.FormatInt(weigh.Timestamp, 10)+")"); err != nil {
+		t); err != nil {
 		return err
 	}
 
