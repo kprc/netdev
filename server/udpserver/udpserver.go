@@ -47,7 +47,7 @@ func (us *NetDevUdpServer) Start() error {
 		return err
 	}
 
-	fmt.Println("udp server start at:",port)
+	fmt.Println("udp server start at:", port)
 
 	go us.serve()
 

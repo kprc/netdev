@@ -20,7 +20,7 @@ func TestDecode(t *testing.T) {
 		return
 	}
 
-	v,err:=Decode(data)
+	v, err := Decode(data)
 
 	if err != nil {
 		panic(err)
@@ -29,7 +29,7 @@ func TestDecode(t *testing.T) {
 
 	fmt.Println(v)
 
-	for i:=0;i<len(v.Labels);i++{
+	for i := 0; i < len(v.Labels); i++ {
 		fmt.Println(v.Labels[i].X)
 	}
 }

@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func TestMsgWater(t *testing.T)  {
-	w:=&MsgWater{}
+func TestMsgWater(t *testing.T) {
+	w := &MsgWater{}
 	w.Room = "a.b.c"
 	w.Count = 100.2
 	w.Timestamp = time.Now().Unix()
@@ -16,9 +16,9 @@ func TestMsgWater(t *testing.T)  {
 }
 
 func TestMsgFoodTower(t *testing.T) {
-	ft:=&MsgFoodTower{
-		Room: "f.t.e",
-		Weight: 100.33,
+	ft := &MsgFoodTower{
+		Room:      "f.t.e",
+		Weight:    100.33,
 		Timestamp: time.Now().Unix(),
 	}
 
@@ -26,12 +26,12 @@ func TestMsgFoodTower(t *testing.T) {
 }
 
 func TestMsgWeigh(t *testing.T) {
-	w:=&MsgWeigh{
-		Room: "weight.1.1",
-		Mao: 100.2,
-		Pi: 120.2,
-		Jing: 99.1,
-		Unit: 1,
+	w := &MsgWeigh{
+		Room:      "weight.1.1",
+		Mao:       100.2,
+		Pi:        120.2,
+		Jing:      99.1,
+		Unit:      1,
 		Timestamp: time.Now().Unix(),
 	}
 
@@ -39,13 +39,13 @@ func TestMsgWeigh(t *testing.T) {
 }
 
 func TestMsgRFID(t *testing.T) {
-	rf:=&MsgRFID{
-		Room: "rfid.1.1",
-		LabelId: "rfid.1able",
-		X: 1,
-		Y: 2,
-		Attr: 1,
-		Extend: "aa",
+	rf := &MsgRFID{
+		Room:      "rfid.1.1",
+		LabelId:   "rfid.1able",
+		X:         1,
+		Y:         2,
+		Attr:      1,
+		Extend:    "aa",
 		Timestamp: time.Now().Unix(),
 	}
 
@@ -53,11 +53,11 @@ func TestMsgRFID(t *testing.T) {
 
 }
 
-func TestMsgTriphase(t *testing.T)  {
+func TestMsgTriphase(t *testing.T) {
 
-	tri:=&MsgTriphase{		MsgWater{
-		Room: "tri11.11",
-		Count: 100.11,
+	tri := &MsgTriphase{MsgWater{
+		Room:      "tri11.11",
+		Count:     100.11,
 		Timestamp: time.Now().Unix(),
 	},
 	}
@@ -65,11 +65,11 @@ func TestMsgTriphase(t *testing.T)  {
 	fmt.Println(tri.String())
 }
 
-func TestMsgUniphase(t *testing.T)  {
-	uni:=&MsgUniphase{
+func TestMsgUniphase(t *testing.T) {
+	uni := &MsgUniphase{
 		MsgWater{
-			Room: "uni11.11",
-			Count: 100.11,
+			Room:      "uni11.11",
+			Count:     100.11,
 			Timestamp: time.Now().Unix(),
 		},
 	}

@@ -66,7 +66,7 @@ type MsgRFID struct {
 	X         int32  `json:"x"`
 	Y         int32  `json:"y"`
 	Attr      int    `json:"attr"`
-	Extend    string    `json:"extend"`
+	Extend    string `json:"extend"`
 	Timestamp int64  `json:"timestamp"`
 }
 

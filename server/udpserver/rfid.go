@@ -15,17 +15,17 @@ func RfidUdpMsg(db *mysqlconn.NetDevDbConn, data []byte, peerAddr net.Addr) {
 	//unmarshal data to lables
 	var (
 		labels *xml.XMLLabels
-		err error
+		err    error
 	)
 
-	if labels,err =xml.Decode(data);err!=nil{
+	if labels, err = xml.Decode(data); err != nil {
 		fmt.Println("Decode xml failed, ")
-		fmt.Println("xml content:",string(data))
+		fmt.Println("xml content:", string(data))
 		return
 	}
 
-	for i:=0;i<len(labels.Labels);i++{
-		l:=labels.Labels[i]
+	for i := 0; i < len(labels.Labels); i++ {
+		l := labels.Labels[i]
 		mr := &msg.MsgRFID{}
 		mr.LabelId = l.ID
 		mr.Timestamp = time.Now().Unix()
@@ -38,7 +38,5 @@ func RfidUdpMsg(db *mysqlconn.NetDevDbConn, data []byte, peerAddr net.Addr) {
 			fmt.Println("insert error", mr.String())
 		}
 	}
-
-
 
 }
