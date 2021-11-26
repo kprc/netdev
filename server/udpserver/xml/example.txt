@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<labels ver="1.0" map="demo">
+<label id="1802232"><x>1568</x><y>666</y><attr>32</attr><extend>01</extend></label>
+<label id="1802600"><x>1343</x><y>413</y><attr>00</attr></label>
+<label id="1705992"><x>1641</x><y>624</y><attr>00</attr></label>
+<label id="1802630"><x>1236</x><y>462</y><attr>18</attr></label>
+<label id="1803184"><x>1892</x><y>601</y><attr>00</attr></label>
+<label id="1802869"><x>942</x><y>679</y><attr>00</attr></label>
+<label id="1802241"><x>1736</x><y>433</y><attr>32</attr><extend>03</extend></label>
+</labels>
