@@ -2,7 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 	"path"
+	"strings"
 )
 
 const (
@@ -13,6 +17,7 @@ const (
 	WeighPath     = "weigh"
 	UniphasePath  = "uniphase"
 	TriphasePath  = "triphase"
+	ProxyPath     = "proxy"
 )
 
 const (
@@ -39,4 +44,57 @@ func (r *Result) Bytes() []byte {
 
 func NetDevPathStr(subPath string) string {
 	return path.Join(ApiPath, NetDevPath, subPath)
+}
+
+const (
+	PigPirce = "pig-price"
+	PigThirdAPI = "https://hq.sinajs.cn/list=nf_LH0"
+)
+
+func ProxyAPIPath(p string) string {
+	return path.Join(ApiPath,ProxyPath,p)
+}
+
+func Proxy(writer http.ResponseWriter, request *http.Request){
+	if request.Method != "GET" {
+		writer.WriteHeader(500)
+		fmt.Fprintf(writer, "not a get request")
+		return
+	}
+
+	fmt.Println(request.URL.Path)
+
+	arrPaths:=strings.Split(request.URL.Path,"/")
+	if len(arrPaths) <3 {
+		writer.WriteHeader(500)
+		fmt.Fprintf(writer, "not a get request")
+		return
+	}
+
+	switch arrPaths[3] {
+	case PigPirce:
+		if err := proxyPigPrice(writer);err!=nil{
+			writer.WriteHeader(500)
+			fmt.Fprintf(writer, "get pigprice failed")
+		}
+		return
+	}
+
+
+
+}
+
+func proxyPigPrice(writer http.ResponseWriter) error {
+	resp,err:=http.Get(PigThirdAPI)
+	if err!=nil{
+		return err
+	}
+
+	if contents, err := ioutil.ReadAll(resp.Body); err != nil {
+		return err
+	} else {
+		writer.WriteHeader(200)
+		writer.Write(contents)
+		return nil
+	}
 }

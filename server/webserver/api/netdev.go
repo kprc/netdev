@@ -196,3 +196,4 @@ func (wa *WebApi) Triphase(writer http.ResponseWriter, request *http.Request) {
 		writer.Write(result.Bytes())
 	}
 }
+
