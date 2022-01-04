@@ -43,7 +43,7 @@ func InsertIndexSource(db *mysqlconn.NetDevDbConn, is *msg.MsgIndexSource) error
 func UpdateIndexSource(db *mysqlconn.NetDevDbConn,id int64, is *msg.MsgIndexSource) error  {
 	tupdate:=time.Now().UnixMilli()
 	_,err:=db.Exec("Update t_index_source set " +
-		"f_state = ?, " +
+		"f_state =?, " +
 		"f_deleted=?, " +
 		"f_updated_at=? " +
 		"where f_id=?",

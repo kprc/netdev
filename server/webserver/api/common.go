@@ -12,12 +12,14 @@ import (
 const (
 	ApiPath       = "/api"
 	NetDevPath    = "netdev"
+	SummaryPath   = "summary"
 	FoodTowerPath = "food_tower"
 	WaterPath     = "water"
 	WeighPath     = "weigh"
 	UniphasePath  = "uniphase"
 	TriphasePath  = "triphase"
 	ProxyPath     = "proxy"
+	IndexSource   = "index-source"
 )
 
 const (
@@ -44,6 +46,10 @@ func (r *Result) Bytes() []byte {
 
 func NetDevPathStr(subPath string) string {
 	return path.Join(ApiPath, NetDevPath, subPath)
+}
+
+func SummaryPathStr(subPath string)  string{
+	return path.Join(ApiPath,SummaryPath,subPath)
 }
 
 const (
