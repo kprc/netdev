@@ -1,8 +1,10 @@
 package sql
 
 import (
+	"context"
 	"github.com/kprc/netdev/db/mysqlconn"
 	"github.com/kprc/netdev/server/webserver/msg"
+	"log"
 	"time"
 )
 
@@ -56,4 +58,34 @@ func UpdateIndexSource(db *mysqlconn.NetDevDbConn,id int64, is *msg.MsgIndexSour
 		return err
 	}
 	return nil
+}
+
+func SelectAllPigHouse(db *mysqlconn.NetDevDbConn) ([]string,error) {
+	query := `SELECT distinct(f_pig_house_code) FROM t_pig_house`
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Error %s when preparing SQL statement", err)
+		return []string{}, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.QueryContext(ctx)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+	var houses  []string
+	for rows.Next() {
+		var ph []byte
+		if err := rows.Scan(&ph); err != nil {
+			return []string{}, err
+		}
+		houses = append(houses, string(ph))
+	}
+	if err := rows.Err(); err != nil {
+		return []string{}, err
+	}
+
+	return houses,nil
 }
