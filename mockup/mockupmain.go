@@ -40,7 +40,18 @@ func getLastData(db *mysqlconn.NetDevDbConn,room string) (lastWater,lastFood,las
 	return
 }
 
-func postOneHourData() error {
+const(
+	inaccuracy = 2
+	inaccuracyInterval = 100
+	oneDaySecond = 86400
+	pigHouse = 2
+	electricUsage = 25
+	waterUsage = 26
+	foodUsage = 27
+
+)
+
+func postOneHourData(lastRound *int64) error {
 	db:=mysqlconn.NewMysqlDb()
 	if err:=db.Connect();err!=nil{
 		fmt.Println(err.Error())
@@ -71,6 +82,22 @@ func postOneHourData() error {
 			if err = UniElectricUsage(houses[i],t,&lastUni);err!=nil{
 				fmt.Println(err)
 			}
+
+			if t%oneDaySecond < inaccuracy && (t - *lastRound) > inaccuracyInterval {
+				*lastRound = t
+
+				tBegin := (t / oneDaySecond ) * oneDaySecond * 1000
+
+				if err = IndexSourceInsert(tBegin,pigHouse,houses[i],electricUsage,lastTri+lastUni);err!=nil{
+					fmt.Println(err)
+				}
+				if err = IndexSourceInsert(tBegin,pigHouse,houses[i],waterUsage,lastWater);err!=nil{
+					fmt.Println(err)
+				}
+				if err = IndexSourceInsert(tBegin,pigHouse,houses[i],foodUsage,lastFood);err!=nil{
+					fmt.Println(err)
+				}
+			}
 		}
 	}
 
@@ -81,6 +108,7 @@ func postOneHourData() error {
 func TimeOutLoop() error {
 
 	lastPostTime:=int64(0)
+	lastRound := int64(0);
 
 	for{
 		select {
@@ -92,8 +120,8 @@ func TimeOutLoop() error {
 
 		now:= time.Now().Unix()
 
-		if now - lastPostTime > 30{
-			postOneHourData()
+		if now - lastPostTime > 3600{
+			postOneHourData(&lastRound)
 			lastPostTime = now
 		}
 

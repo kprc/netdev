@@ -15,13 +15,13 @@ func InsertIndexSource(db *mysqlconn.NetDevDbConn, is *msg.MsgIndexSource) error
 		"f_version," +
 		"f_begin_at," +
 		"f_category," +
-		"f_category_code" +
-		"f_type" +
-		"f_value" +
-		"f_basis_value" +
-		"f_state" +
-		"f_deleted" +
-		"f_created_at" +
+		"f_category_code," +
+		"f_type," +
+		"f_value," +
+		"f_basis_value," +
+		"f_state," +
+		"f_deleted," +
+		"f_created_at," +
 		"f_updated_at" +
 		") VALUES (?,?,?,?,?,?,?,?,?,?,?)",
 		is.Version,

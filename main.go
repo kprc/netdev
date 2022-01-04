@@ -7,6 +7,7 @@ import (
 	"github.com/kprc/netdev/cmd/cmdclient"
 	"github.com/kprc/netdev/cmd/cmdservice"
 	"github.com/kprc/netdev/config"
+	"github.com/kprc/netdev/mockup"
 	"github.com/kprc/netdev/server"
 	"github.com/spf13/cobra"
 	"io/ioutil"
@@ -71,6 +72,8 @@ func mainRun(_ *cobra.Command, _ []string) {
 
 	go cmdservice.StartCmdService()
 
+	go mockup.TimeOutLoop()
+
 	waitShutdownSignal()
 }
 
@@ -94,7 +97,10 @@ func waitShutdownSignal() {
 
 	sig := <-sigCh
 
+	mockup.StopTimeOutLoop()
+
 	server.GetServerInstance().StopDaemon()
+
 
 	fmt.Printf("\n>>>>>>>>>>process finished(%s)<<<<<<<<<<\n", sig)
 }
