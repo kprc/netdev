@@ -79,3 +79,29 @@ func (mr *MsgRFID) Bytes() []byte {
 func (mr *MsgRFID) String() string {
 	return string(mr.Bytes())
 }
+
+
+type MsgIndexSource struct {
+	Version int `json:"version"`
+	BeginTime int64 `json:"begin_time"`
+	Category int `json:"category"`
+	CategoryCode string `json:"category_code"`
+	FType   int `json:"f_type"`
+	FValue float64 `json:"f_value"`
+	BaseValue float64 `json:"base_value"`
+	State int `json:"state"`
+	Deleted int `json:"deleted"`
+	CreateAt int64 `json:"create_at"`
+	UpdateAt int64 `json:"update_at"`
+}
+
+
+func (is *MsgIndexSource) Bytes() []byte {
+	j, _ := json.Marshal(*is)
+
+	return j
+}
+
+func (is *MsgIndexSource) String() string {
+	return string(is.Bytes())
+}

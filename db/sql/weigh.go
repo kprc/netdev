@@ -8,7 +8,9 @@ import (
 
 func InsertWeigh(db *mysqlconn.NetDevDbConn, weigh *msg.MsgWeigh) error {
 	t:=time.Unix(weigh.Timestamp,0)
-	if _, err := db.Exec("Insert into weigh (room,mao_weigh,pi_weigh,jing_weigh,unit,createtime ) VALUES (?,?,?,?,?,?)",
+	if _, err := db.Exec("Insert into t_weigh (" +
+		"f_room,f_mao_weigh," +
+		"f_pi_weigh,f_jing_weigh,f_unit,f_createtime ) VALUES (?,?,?,?,?,?)",
 		weigh.Room,
 		weigh.Mao,
 		weigh.Pi,

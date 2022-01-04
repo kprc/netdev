@@ -30,8 +30,10 @@ func defaultConf() *NetDevConf {
 		Db: &DatabaseConf{
 			Driver: "mysql",
 			DbName: "netdev",
-			User:   "huochain",
-			Passwd: "test@huochain",
+			//User:   "huochain",
+			//Passwd: "test@huochain",
+			User:   "root",
+			Passwd: "Rickey@123",
 		},
 	}
 }

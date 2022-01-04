@@ -8,7 +8,8 @@ import (
 
 func InsertRfid(db *mysqlconn.NetDevDbConn, mr *msg.MsgRFID) error {
 	t:=time.Unix(mr.Timestamp,0)
-	if _, err := db.Exec("Insert into label_data (room,label_id,x,y,attr,extend,createtime ) VALUES (?,?,?,?,?,?,?)",
+	if _, err := db.Exec("Insert into t_label_data (f_room," +
+		"f_label_id,f_x,f_y,f_attr,f_extend,f_createtime ) VALUES (?,?,?,?,?,?,?)",
 		mr.Room,
 		mr.LabelId,
 		mr.X,

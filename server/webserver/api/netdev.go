@@ -43,7 +43,7 @@ func (wa *WebApi) FoodTower(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		if err = sql.InsertFoodWater(wa.db, ft); err != nil {
+		if err = sql.InsertFoodTower(wa.db, ft); err != nil {
 			result := PackResult(Failure, "Insert into db failed")
 			writer.WriteHeader(200)
 			writer.Write(result.Bytes())
@@ -196,4 +196,43 @@ func (wa *WebApi) Triphase(writer http.ResponseWriter, request *http.Request) {
 		writer.Write(result.Bytes())
 	}
 }
+
+
+func (wa *WebApi) IndexSource(writer http.ResponseWriter, request *http.Request) {
+	if request.Method != "POST" {
+		writer.WriteHeader(500)
+		fmt.Fprintf(writer, "not a post request")
+		return
+	}
+
+	if contents, err := ioutil.ReadAll(request.Body); err != nil {
+		writer.WriteHeader(500)
+		fmt.Fprintf(writer, "read http body error")
+		return
+	} else {
+		fmt.Println(string(contents))
+		//todo...
+		tri := &msg.MsgIndexSource{}
+		if err = json.Unmarshal(contents, tri); err != nil {
+			result := PackResult(Failure, "json unmarshal failed")
+			writer.WriteHeader(200)
+			writer.Write(result.Bytes())
+			return
+		}
+
+		if err = sql.InsertIndexSource(wa.db, tri); err != nil {
+			result := PackResult(Failure, "Insert into db failed")
+			writer.WriteHeader(200)
+			writer.Write(result.Bytes())
+			return
+		}
+
+		result := PackResult(Success, "success")
+		writer.WriteHeader(200)
+		writer.Write(result.Bytes())
+	}
+}
+
+
+
 

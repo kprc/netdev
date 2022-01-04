@@ -11,7 +11,8 @@ import (
 func InsertWater(db *mysqlconn.NetDevDbConn, water *msg.MsgWater) error {
 
 	t := time.Unix(water.Timestamp,0)
-	if _, err := db.Exec("Insert into water_usage (room,count,createtime ) VALUES (?,?,?)",
+	if _, err := db.Exec("Insert into t_water_usage (" +
+		"f_room,f_count,f_createtime ) VALUES (?,?,?)",
 		water.Room,
 		water.Count,
 		t); err != nil {
@@ -25,7 +26,7 @@ func InsertWater(db *mysqlconn.NetDevDbConn, water *msg.MsgWater) error {
 }
 
 func SelectWater(db *mysqlconn.NetDevDbConn, beginTime, endTime int64) ([]*msg.MsgDbWater,error) {
-	stmt,err:=db.Prepare("select * from water_usage where UNIX_TIMESTAMP(createtime) > ? and UNIX_TIMESTAMP(createtime) < ? ")
+	stmt,err:=db.Prepare("select * from t_water_usage where UNIX_TIMESTAMP(f_createtime) > ? and UNIX_TIMESTAMP(f_createtime) < ? ")
 	if err!=nil{
 		return nil,err
 	}
@@ -55,7 +56,8 @@ func SelectWater(db *mysqlconn.NetDevDbConn, beginTime, endTime int64) ([]*msg.M
 
 func InsertWaterBlock(db *mysqlconn.NetDevDbConn, water *msg.MsgWater) error {
 	t:=time.Unix(water.Timestamp,0)
-	if _, err := db.Exec("Insert into water_usage_blockchain (room,count,createtime ) VALUES (?,?,?)",
+	if _, err := db.Exec("Insert into t_water_usage_blockchain (" +
+		"f_room,f_count,f_createtime ) VALUES (?,?,?)",
 		water.Room,
 		water.Count,
 		t); err != nil {
@@ -66,7 +68,8 @@ func InsertWaterBlock(db *mysqlconn.NetDevDbConn, water *msg.MsgWater) error {
 
 
 func UpdateWaterBlock(db *mysqlconn.NetDevDbConn, id int64, height uint64, hash string) error {
-	if _, err := db.Exec("Update water_usage_blockchain set blockheight = ? , hash=? where id=?",
+	if _, err := db.Exec("Update t_water_usage_blockchain set " +
+		"f_blockheight = ? , f_hash=? where f_id=?",
 		height, hash, id); err != nil {
 		return err
 	}
