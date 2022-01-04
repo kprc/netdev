@@ -1,10 +1,18 @@
 package mockup
 
 import (
+	"fmt"
 	"github.com/kprc/netdev/config"
+	"github.com/kprc/netdev/db/mysqlconn"
+	"github.com/kprc/netdev/db/sql"
 	"github.com/kprc/netdev/server/webserver/api"
 	"strings"
+	"time"
 )
+const(
+	localhost="http://localhost:"
+)
+var quit chan struct{}
 
 func getNetDevWebPort() string {
 	conf:=config.GetNetDevConf()
@@ -17,6 +25,82 @@ func getNetDevWebPort() string {
 }
 
 func postPath(subPath string) string {
-	return "http://localhost:"+getNetDevWebPort()+api.NetDevPathStr(subPath)
+	return localhost+getNetDevWebPort()+api.NetDevPathStr(subPath)
 }
 
+func postSummaryPath(subpath string) string  {
+	return localhost+getNetDevWebPort()+api.SummaryPathStr(subpath)
+}
+
+func getLastData(db *mysqlconn.NetDevDbConn,room string) (lastWater,lastFood,lastTri,lastUni float64) {
+	lastWater = GetLastWaterUsage(db, room)
+	lastFood = GetLastFoodUsage(db,room)
+	lastTri = GetLastTriEleUsage(db,room)
+	lastUni = GetLastUniEleUsage(db,room)
+	return
+}
+
+func postOneHourData() error {
+	db:=mysqlconn.NewMysqlDb()
+	if err:=db.Connect();err!=nil{
+		fmt.Println(err.Error())
+		return err
+	}
+	defer db.Close()
+
+	if houses,err:=sql.SelectAllPigHouse(db);err!=nil{
+		fmt.Println(err.Error())
+		return err
+	}else{
+		for i:=0;i<len(houses);i++{
+			lastWater,lastFood,lastTri,lastUni := getLastData(db,houses[i])
+			t:=time.Now().Unix()
+
+			if err = WaterUsage(houses[i],t,&lastWater);err!=nil{
+				fmt.Println(err)
+			}
+
+			if err = FoodUsage(houses[i],t,&lastFood);err!=nil{
+				fmt.Println(err)
+			}
+
+			if err = TriElectricUsage(houses[i],t,&lastTri);err!=nil{
+				fmt.Println(err)
+			}
+
+			if err = UniElectricUsage(houses[i],t,&lastUni);err!=nil{
+				fmt.Println(err)
+			}
+		}
+	}
+
+	return nil
+
+}
+
+func TimeOutLoop() error {
+
+	lastPostTime:=int64(0)
+
+	for{
+		select {
+			case <-quit:
+				return nil
+		default:
+			//nothing todo...
+		}
+
+		now:= time.Now().Unix()
+
+		if now - lastPostTime > 30{
+			postOneHourData()
+			lastPostTime = now
+		}
+
+		time.Sleep(time.Second)
+	}
+}
+
+func StopTimeOutLoop()  {
+	quit <- struct{}{}
+}

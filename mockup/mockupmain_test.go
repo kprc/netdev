@@ -5,6 +5,7 @@ import (
 	"github.com/kprc/netdev/db/mysqlconn"
 	"github.com/kprc/netdev/db/sql"
 	"testing"
+	"time"
 )
 
 func TestSelectAllPigHouse(t *testing.T)  {
@@ -18,5 +19,10 @@ func TestSelectAllPigHouse(t *testing.T)  {
 	}else{
 		fmt.Println(phs)
 	}
+}
 
+func TestTimeOutLoop(t *testing.T) {
+	go TimeOutLoop()
+
+	time.Sleep(time.Second*301)
 }

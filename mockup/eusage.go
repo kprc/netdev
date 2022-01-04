@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kprc/nbsnetwork/tools/httputil"
+	"github.com/kprc/netdev/db/mysqlconn"
+	"github.com/kprc/netdev/db/sql"
 	"github.com/kprc/netdev/server/webserver/api"
 	"github.com/kprc/netdev/server/webserver/msg"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -15,7 +18,29 @@ const(
 	uniEUsageBase int = 90
 )
 
-func TriElectricUsage(room string, timestamp int64) error {
+func GetLastTriEleUsage(db *mysqlconn.NetDevDbConn,room string) float64  {
+	if last,err:=sql.SelectTriEUsage(db,room);err!=nil {
+		if b:=strings.Contains(err.Error(),"no rows in result set");b{
+			return 0
+		}
+		panic(err)
+	}else {
+		return last
+	}
+}
+
+func GetLastUniEleUsage(db *mysqlconn.NetDevDbConn, room string) float64  {
+	if last,err:=sql.SelectUniEUsage(db,room);err!=nil {
+		if b:=strings.Contains(err.Error(),"no rows in result set");b{
+			return 0
+		}
+		panic(err)
+	}else {
+		return last
+	}
+}
+
+func TriElectricUsage(room string, timestamp int64, lastCount *float64) error {
 	rand.Seed(time.Now().UnixNano())
 	count:= float64(triEUsageBase) + (float64(rand.Intn(10000)) / 100.0)
 
@@ -23,7 +48,7 @@ func TriElectricUsage(room string, timestamp int64) error {
 		MsgWater:msg.MsgWater{
 			Room: room,
 			Timestamp: timestamp,
-			Count: count,
+			Count: count+(*lastCount),
 		},
 	}
 
@@ -43,10 +68,12 @@ func TriElectricUsage(room string, timestamp int64) error {
 		fmt.Println("post tri electric usage success, result is ",ret)
 	}
 
+	*lastCount = *lastCount + count
+
 	return nil
 }
 
-func UniElectricUsage(room string, timestamp int64) error  {
+func UniElectricUsage(room string, timestamp int64,lastCount *float64) error  {
 	rand.Seed(time.Now().UnixNano())
 	count:= float64(uniEUsageBase) + (float64(rand.Intn(9000)) / 100.0)
 
@@ -54,7 +81,7 @@ func UniElectricUsage(room string, timestamp int64) error  {
 		MsgWater:msg.MsgWater{
 			Room: room,
 			Timestamp: timestamp,
-			Count: count,
+			Count: count+(*lastCount),
 		},
 	}
 
@@ -74,5 +101,8 @@ func UniElectricUsage(room string, timestamp int64) error  {
 		fmt.Println("post uni electric usage success, result is ",ret)
 	}
 
+	*lastCount = *lastCount + count
+
 	return nil
 }
+

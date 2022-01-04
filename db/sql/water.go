@@ -76,3 +76,17 @@ func UpdateWaterBlock(db *mysqlconn.NetDevDbConn, id int64, height uint64, hash 
 
 	return nil
 }
+
+func SelectWaterUsage(db *mysqlconn.NetDevDbConn,room string) (float64,error) {
+	sql:="select f_count from t_water_usage where f_room = ? order by f_id desc limit 1"
+
+	count:=float64(0)
+
+	if err:=db.QueryRow(sql,room).Scan(&count);err!=nil{
+		return 0,err
+	}
+
+	return count,nil
+}
+
+

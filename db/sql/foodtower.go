@@ -23,3 +23,16 @@ func InsertFoodTowerBlockChain(db *mysqlconn.NetDevDbConn, ft *msg.MsgFoodTower)
 
 	return nil
 }
+
+
+func SelectFoodUsage(db *mysqlconn.NetDevDbConn,room string) (float64,error) {
+	sql:="select f_weight from t_food_tower where f_room = ? order by f_id desc limit 1"
+
+	count:=float64(0)
+
+	if err:=db.QueryRow(sql,room).Scan(&count);err!=nil{
+		return 0,err
+	}
+
+	return count,nil
+}
