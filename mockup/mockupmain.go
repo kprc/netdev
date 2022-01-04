@@ -109,7 +109,7 @@ func postOneHourData(lastRound *int64) error {
 func TimeOutLoop() error {
 
 	lastPostTime:=int64(0)
-	lastRound := int64(0);
+	lastRound := int64(0)
 
 	for{
 		select {
