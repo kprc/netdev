@@ -44,6 +44,7 @@ const(
 	inaccuracy = 2
 	inaccuracyInterval = 100
 	oneDaySecond = 86400
+	oneHourSecond = 3600
 	pigHouse = 2
 	electricUsage = 25
 	waterUsage = 26
@@ -120,7 +121,7 @@ func TimeOutLoop() error {
 
 		now:= time.Now().Unix()
 
-		if now - lastPostTime > 3600{
+		if now - lastPostTime > oneHourSecond{
 			postOneHourData(&lastRound)
 			lastPostTime = now
 		}
