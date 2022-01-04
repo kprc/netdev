@@ -18,8 +18,10 @@ func NewMysqlDb() *NetDevDbConn {
 func (ndb *NetDevDbConn) Connect() error {
 	cfg := config.GetNetDevConf()
 
-	mysqldns := fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=true",
-		cfg.Db.User, cfg.Db.Passwd, cfg.Db.DbName)
+	mysqldns := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
+		cfg.Db.User, cfg.Db.Passwd, cfg.Db.Host,cfg.Db.DbName)
+
+	fmt.Println(mysqldns)
 
 	db, err := sql.Open(cfg.Db.Driver, mysqldns)
 	if err != nil {

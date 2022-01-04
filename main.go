@@ -16,6 +16,7 @@ import (
 	"path"
 	"strconv"
 	"syscall"
+	"time"
 )
 
 const (
@@ -71,6 +72,8 @@ func mainRun(_ *cobra.Command, _ []string) {
 	go server.GetServerInstance().StartDaemon()
 
 	go cmdservice.StartCmdService()
+	
+	time.Sleep(time.Second*2)
 
 	go mockup.TimeOutLoop()
 

@@ -28,6 +28,7 @@ func defaultConf() *NetDevConf {
 			ListenServer: ":60012",
 		},
 		Db: &DatabaseConf{
+			Host: "localhost:3306",
 			Driver: "mysql",
 			DbName: "huochain_husbandry",
 			User:   "huochain",
@@ -114,6 +115,7 @@ type UdpServerConf struct {
 }
 
 type DatabaseConf struct {
+	Host  string  `json:"host"`
 	Driver string `json:"driver"`
 	DbName string `json:"db_name"`
 	User   string `json:"user"`
