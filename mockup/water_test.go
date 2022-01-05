@@ -8,15 +8,15 @@ import (
 )
 
 func TestWaterUsage(t *testing.T) {
-	db:=mysqlconn.NewMysqlDb()
-	if err:=db.Connect();err!=nil{
+	db := mysqlconn.NewMysqlDb()
+	if err := db.Connect(); err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	last:=GetLastWaterUsage(db,"34")
+	last := GetLastWaterUsage(db, "34")
 
-	if err:=WaterUsage("34",time.Now().Unix(),&last);err!=nil{
+	if err := WaterUsage("34", time.Now().UTC().Unix(), &last); err != nil {
 		panic(err)
 	}
 

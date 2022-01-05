@@ -19,7 +19,7 @@ func (ndb *NetDevDbConn) Connect() error {
 	cfg := config.GetNetDevConf()
 
 	mysqldns := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
-		cfg.Db.User, cfg.Db.Passwd, cfg.Db.Host,cfg.Db.DbName)
+		cfg.Db.User, cfg.Db.Passwd, cfg.Db.Host, cfg.Db.DbName)
 
 	fmt.Println(mysqldns)
 

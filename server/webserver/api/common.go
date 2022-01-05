@@ -49,20 +49,20 @@ func NetDevPathStr(subPath string) string {
 	return path.Join(ApiPath, NetDevPath, subPath)
 }
 
-func SummaryPathStr(subPath string)  string{
-	return path.Join(ApiPath,SummaryPath,subPath)
+func SummaryPathStr(subPath string) string {
+	return path.Join(ApiPath, SummaryPath, subPath)
 }
 
 const (
-	PigPirce = "pig-price"
+	PigPirce    = "pig-price"
 	PigThirdAPI = "https://hq.sinajs.cn/list=nf_LH0"
 )
 
 func ProxyAPIPath(p string) string {
-	return path.Join(ApiPath,ProxyPath,p)
+	return path.Join(ApiPath, ProxyPath, p)
 }
 
-func Proxy(writer http.ResponseWriter, request *http.Request){
+func Proxy(writer http.ResponseWriter, request *http.Request) {
 	if request.Method != "GET" {
 		writer.WriteHeader(500)
 		fmt.Fprintf(writer, "not a get request")
@@ -71,8 +71,8 @@ func Proxy(writer http.ResponseWriter, request *http.Request){
 
 	fmt.Println(request.URL.Path)
 
-	arrPaths:=strings.Split(request.URL.Path,"/")
-	if len(arrPaths) <3 {
+	arrPaths := strings.Split(request.URL.Path, "/")
+	if len(arrPaths) < 3 {
 		writer.WriteHeader(500)
 		fmt.Fprintf(writer, "not a get request")
 		return
@@ -80,20 +80,18 @@ func Proxy(writer http.ResponseWriter, request *http.Request){
 
 	switch arrPaths[3] {
 	case PigPirce:
-		if err := proxyPigPrice(writer);err!=nil{
+		if err := proxyPigPrice(writer); err != nil {
 			writer.WriteHeader(500)
 			fmt.Fprintf(writer, "get pigprice failed")
 		}
 		return
 	}
 
-
-
 }
 
 func proxyPigPrice(writer http.ResponseWriter) error {
-	resp,err:=http.Get(PigThirdAPI)
-	if err!=nil{
+	resp, err := http.Get(PigThirdAPI)
+	if err != nil {
 		return err
 	}
 

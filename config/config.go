@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	netdevHome = ".netdev"
-	confFile   = "conf.json"
-	cmdSock    = ".cmd-sock"
+	netdevHome   = ".netdev"
+	confFile     = "conf.json"
+	cmdSock      = ".cmd-sock"
+	localFileDir = "upload"
 )
 
 var (
@@ -28,7 +29,7 @@ func defaultConf() *NetDevConf {
 			ListenServer: ":60012",
 		},
 		Db: &DatabaseConf{
-			Host: "localhost:3306",
+			Host:   "localhost:3306",
 			Driver: "mysql",
 			DbName: "huochain_husbandry",
 			User:   "huochain",
@@ -102,6 +103,10 @@ func ConfFile() string {
 	return path.Join(NetDevHome(), confFile)
 }
 
+func UploadDir() string {
+	return path.Join(NetDevHome(), localFileDir)
+}
+
 func CmdSockFile() string {
 	return path.Join(NetDevHome(), cmdSock)
 }
@@ -115,7 +120,7 @@ type UdpServerConf struct {
 }
 
 type DatabaseConf struct {
-	Host  string  `json:"host"`
+	Host   string `json:"host"`
 	Driver string `json:"driver"`
 	DbName string `json:"db_name"`
 	User   string `json:"user"`

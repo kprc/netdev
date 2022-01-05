@@ -3,11 +3,19 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/kprc/netdev/config"
 	"github.com/kprc/netdev/db/mysqlconn"
 	"github.com/kprc/netdev/db/sql"
 	"github.com/kprc/netdev/server/webserver/msg"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path"
+)
+
+const (
+	maxUploadSize = 1 << 24 //16M
 )
 
 type WebApi struct {
@@ -197,7 +205,6 @@ func (wa *WebApi) Triphase(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-
 func (wa *WebApi) IndexSource(writer http.ResponseWriter, request *http.Request) {
 	if request.Method != "POST" {
 		writer.WriteHeader(500)
@@ -233,8 +240,23 @@ func (wa *WebApi) IndexSource(writer http.ResponseWriter, request *http.Request)
 	}
 }
 
-func (wa *WebApi)UploadFile(writer http.ResponseWriter, request *http.Request) {
+func (wa *WebApi) UploadFile(writer http.ResponseWriter, request *http.Request) {
+	request.ParseMultipartForm(maxUploadSize)
+	defer request.MultipartForm.RemoveAll()
+	file, h, err := request.FormFile("filename")
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	//fmt.Fprintf(w, "%v", h.Header)
+	f, err := os.OpenFile(path.Join(config.UploadDir(), h.Filename), os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer f.Close()
+	io.Copy(f, file)
 
+	writer.Write([]byte("success"))
+	fmt.Println("save file", h.Filename, "success")
 }
-
-

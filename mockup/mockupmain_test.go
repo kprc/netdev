@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-func TestSelectAllPigHouse(t *testing.T)  {
-	db:=mysqlconn.NewMysqlDb()
-	if err:=db.Connect();err!=nil{
+func TestSelectAllPigHouse(t *testing.T) {
+	db := mysqlconn.NewMysqlDb()
+	if err := db.Connect(); err != nil {
 		panic(err)
 	}
 	defer db.Close()
-	if phs,err:=sql.SelectAllPigHouse(db);err!=nil{
+	if phs, err := sql.SelectAllPigHouse(db); err != nil {
 		fmt.Println(err)
-	}else{
+	} else {
 		fmt.Println(phs)
 	}
 }
@@ -24,5 +24,5 @@ func TestSelectAllPigHouse(t *testing.T)  {
 func TestTimeOutLoop(t *testing.T) {
 	go TimeOutLoop()
 
-	time.Sleep(time.Second*301)
+	time.Sleep(time.Second * 301)
 }

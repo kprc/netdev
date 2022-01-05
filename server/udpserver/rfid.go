@@ -28,7 +28,7 @@ func RfidUdpMsg(db *mysqlconn.NetDevDbConn, data []byte, peerAddr net.Addr) {
 		l := labels.Labels[i]
 		mr := &msg.MsgRFID{}
 		mr.LabelId = l.ID
-		mr.Timestamp = time.Now().Unix()
+		mr.Timestamp = time.Now().UTC().Unix()
 		mr.X = int32(l.X)
 		mr.Y = int32(l.Y)
 		mr.Extend = l.Extend

@@ -68,9 +68,9 @@ func (ws *NetDevWebServer) init() *NetDevWebServer {
 	rh.HandleFunc(api.NetDevPathStr(api.WeighPath), wapi.Weigh)
 	rh.HandleFunc(api.NetDevPathStr(api.UniphasePath), wapi.UniPhase)
 	rh.HandleFunc(api.NetDevPathStr(api.TriphasePath), wapi.Triphase)
-	rh.HandleFunc(api.NetDevPathStr(api.UploadFile),wapi.UploadFile)
-	rh.HandleFunc(api.SummaryPathStr(api.IndexSource),wapi.IndexSource)
-	rh.HandleFunc(api.ProxyAPIPath(api.PigPirce),api.Proxy)
+	rh.HandleFunc(api.NetDevPathStr(api.UploadFile), wapi.UploadFile)
+	rh.HandleFunc(api.SummaryPathStr(api.IndexSource), wapi.IndexSource)
+	rh.HandleFunc(api.ProxyAPIPath(api.PigPirce), api.Proxy)
 
 	server := &http.Server{
 		Handler: rh,

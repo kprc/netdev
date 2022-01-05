@@ -9,72 +9,75 @@ import (
 	"strings"
 	"time"
 )
-const(
-	localhost="http://localhost:"
+
+const (
+	localhost = "http://localhost:"
 )
+
 var quit chan struct{}
 
 func getNetDevWebPort() string {
-	conf:=config.GetNetDevConf()
+	conf := config.GetNetDevConf()
 
-	arrPort := strings.Split(conf.WConf.ListenServer,":")
-	if len(arrPort) != 2{
+	arrPort := strings.Split(conf.WConf.ListenServer, ":")
+	if len(arrPort) != 2 {
 		return "0"
 	}
 	return arrPort[1]
 }
 
 func postPath(subPath string) string {
-	return localhost+getNetDevWebPort()+api.NetDevPathStr(subPath)
+	return localhost + getNetDevWebPort() + api.NetDevPathStr(subPath)
 }
 
-func postSummaryPath(subpath string) string  {
-	return localhost+getNetDevWebPort()+api.SummaryPathStr(subpath)
+func postSummaryPath(subpath string) string {
+	return localhost + getNetDevWebPort() + api.SummaryPathStr(subpath)
 }
 
-func getLastData(db *mysqlconn.NetDevDbConn,room string) (lastWater,lastFood,lastTri,lastUni float64) {
+func getLastData(db *mysqlconn.NetDevDbConn, room string) (lastWater, lastFood, lastTri, lastUni float64) {
 	lastWater = GetLastWaterUsage(db, room)
-	lastFood = GetLastFoodUsage(db,room)
-	lastTri = GetLastTriEleUsage(db,room)
-	lastUni = GetLastUniEleUsage(db,room)
+	lastFood = GetLastFoodUsage(db, room)
+	lastTri = GetLastTriEleUsage(db, room)
+	lastUni = GetLastUniEleUsage(db, room)
 	return
 }
 
-const(
-	inaccuracy = 2
+const (
+	inaccuracy         = 2
 	inaccuracyInterval = 100
-	oneDaySecond = 86400
-	oneHourSecond = 3600
-	pigHouse = 2
-	electricUsage = 25
-	waterUsage = 26
-	foodUsage = 27
-
+	oneDaySecond       = 86400
+	oneHourSecond      = 3600
+	pigHouse           = 2
+	electricUsage      = 25
+	waterUsage         = 26
+	foodUsage          = 27
 )
 
 func posOneDayData(lastRound *int64) error {
-	t:=time.Now().Unix()
-	if  t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval{
-		*lastRound = t
-	}else {
+
+	t := time.Now().UTC().Unix()
+	tt := t + 8*3600
+	if tt%oneDaySecond < inaccuracy && (tt-*lastRound) > inaccuracyInterval {
+		*lastRound = tt
+	} else {
 		return nil
 	}
-	db:=mysqlconn.NewMysqlDb()
-	if err:=db.Connect();err!=nil{
+	db := mysqlconn.NewMysqlDb()
+	if err := db.Connect(); err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
 	defer db.Close()
 
-	tBegin := (t / oneDaySecond) * oneDaySecond * 1000
+	tBegin := (t/oneDaySecond)*oneDaySecond*1000 - 8*3600000
 
-	if houses,err:=sql.SelectAllPigHouse(db);err!=nil{
+	if houses, err := sql.SelectAllPigHouse(db); err != nil {
 		fmt.Println(err.Error())
 		return err
-	}else {
+	} else {
 		for i := 0; i < len(houses); i++ {
 			lastWater, lastFood, lastTri, lastUni := getLastData(db, houses[i])
-			if (lastWater + lastFood + lastTri + lastUni) == 0{
+			if (lastWater + lastFood + lastTri + lastUni) == 0 {
 				return nil
 			}
 
@@ -94,34 +97,34 @@ func posOneDayData(lastRound *int64) error {
 }
 
 func postOneHourData() error {
-	db:=mysqlconn.NewMysqlDb()
-	if err:=db.Connect();err!=nil{
+	db := mysqlconn.NewMysqlDb()
+	if err := db.Connect(); err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
 	defer db.Close()
 
-	if houses,err:=sql.SelectAllPigHouse(db);err!=nil{
+	if houses, err := sql.SelectAllPigHouse(db); err != nil {
 		fmt.Println(err.Error())
 		return err
-	}else{
-		for i:=0;i<len(houses);i++{
-			lastWater,lastFood,lastTri,lastUni := getLastData(db,houses[i])
-			t:=time.Now().Unix()
+	} else {
+		for i := 0; i < len(houses); i++ {
+			lastWater, lastFood, lastTri, lastUni := getLastData(db, houses[i])
+			t := time.Now().UTC().Unix()
 
-			if err = WaterUsage(houses[i],t,&lastWater);err!=nil{
+			if err = WaterUsage(houses[i], t, &lastWater); err != nil {
 				fmt.Println(err)
 			}
 
-			if err = FoodUsage(houses[i],t,&lastFood);err!=nil{
+			if err = FoodUsage(houses[i], t, &lastFood); err != nil {
 				fmt.Println(err)
 			}
 
-			if err = TriElectricUsage(houses[i],t,&lastTri);err!=nil{
+			if err = TriElectricUsage(houses[i], t, &lastTri); err != nil {
 				fmt.Println(err)
 			}
 
-			if err = UniElectricUsage(houses[i],t,&lastUni);err!=nil{
+			if err = UniElectricUsage(houses[i], t, &lastUni); err != nil {
 				fmt.Println(err)
 			}
 
@@ -134,20 +137,20 @@ func postOneHourData() error {
 
 func TimeOutLoop() error {
 
-	lastPostTime:=int64(0)
+	lastPostTime := int64(0)
 	lastRound := int64(0)
 
-	for{
+	for {
 		select {
-			case <-quit:
-				return nil
+		case <-quit:
+			return nil
 		default:
 			//nothing todo...
 		}
 
-		now:= time.Now().Unix()
+		now := time.Now().UTC().Unix()
 
-		if now - lastPostTime > oneHourSecond{
+		if now-lastPostTime > oneHourSecond {
 			postOneHourData()
 			lastPostTime = now
 		}
@@ -156,6 +159,6 @@ func TimeOutLoop() error {
 	}
 }
 
-func StopTimeOutLoop()  {
+func StopTimeOutLoop() {
 	quit <- struct{}{}
 }

@@ -17,43 +17,41 @@ const (
 	foodUsageBase = 140
 )
 
-
-func GetLastFoodUsage(db *mysqlconn.NetDevDbConn,room string) float64  {
-	if last,err:=sql.SelectFoodUsage(db,room);err!=nil {
-		if b:=strings.Contains(err.Error(),"no rows in result set");b{
+func GetLastFoodUsage(db *mysqlconn.NetDevDbConn, room string) float64 {
+	if last, err := sql.SelectFoodUsage(db, room); err != nil {
+		if b := strings.Contains(err.Error(), "no rows in result set"); b {
 			return 0
 		}
 		panic(err)
-	}else {
+	} else {
 		return last
 	}
 }
 
-
 func FoodUsage(room string, timestamp int64, last *float64) error {
 	rand.Seed(time.Now().UnixNano())
-	count:= float64(foodUsageBase) + (float64(rand.Intn(14000)) / 100.0)
+	count := float64(foodUsageBase) + (float64(rand.Intn(14000)) / 100.0)
 
-	food:=&msg.MsgFoodTower{
-		Room: room,
+	food := &msg.MsgFoodTower{
+		Room:      room,
 		Timestamp: timestamp,
-		Weight: count+(*last),
+		Weight:    count + (*last),
 	}
 
-	j,_:=json.Marshal(food)
+	j, _ := json.Marshal(food)
 
-	hp := httputil.NewHttpPost(nil,true,2,2)
-	ret,code,err:=hp.ProtectPost(postPath(api.FoodTowerPath),string(j))
-	if err!=nil{
-		fmt.Println("post food usage error",err)
+	hp := httputil.NewHttpPost(nil, true, 2, 2)
+	ret, code, err := hp.ProtectPost(postPath(api.FoodTowerPath), string(j))
+	if err != nil {
+		fmt.Println("post food usage error", err)
 	}
 
-	if code != 200{
-		fmt.Println("post food usage error, code is ",code)
+	if code != 200 {
+		fmt.Println("post food usage error, code is ", code)
 	}
 
-	if code == 200{
-		fmt.Println("post food usage success, result is ",ret)
+	if code == 200 {
+		fmt.Println("post food usage success, result is ", ret)
 	}
 
 	*last += count + (*last)

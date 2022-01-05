@@ -9,20 +9,20 @@ import (
 )
 
 func InsertIndexSource(db *mysqlconn.NetDevDbConn, is *msg.MsgIndexSource) error {
-	tcreate:=time.Now().UnixMilli()
+	tcreate := time.Now().UTC().UnixMilli()
 
-	_,err:=db.Exec("Insert into t_index_source (" +
-		"f_version," +
-		"f_begin_at," +
-		"f_category," +
-		"f_category_code," +
-		"f_type," +
-		"f_value," +
-		"f_basis_value," +
-		"f_state," +
-		"f_deleted," +
-		"f_created_at," +
-		"f_updated_at" +
+	_, err := db.Exec("Insert into t_index_source ("+
+		"f_version,"+
+		"f_begin_at,"+
+		"f_category,"+
+		"f_category_code,"+
+		"f_type,"+
+		"f_value,"+
+		"f_basis_value,"+
+		"f_state,"+
+		"f_deleted,"+
+		"f_created_at,"+
+		"f_updated_at"+
 		") VALUES (?,?,?,?,?,?,?,?,?,?,?)",
 		is.Version,
 		is.BeginTime,
@@ -36,31 +36,31 @@ func InsertIndexSource(db *mysqlconn.NetDevDbConn, is *msg.MsgIndexSource) error
 		tcreate,
 		tcreate)
 
-	if err!=nil{
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func UpdateIndexSource(db *mysqlconn.NetDevDbConn,id int64, is *msg.MsgIndexSource) error  {
-	tupdate:=time.Now().UnixMilli()
-	_,err:=db.Exec("Update t_index_source set " +
-		"f_state =?, " +
-		"f_deleted=?, " +
-		"f_updated_at=? " +
+func UpdateIndexSource(db *mysqlconn.NetDevDbConn, id int64, is *msg.MsgIndexSource) error {
+	tupdate := time.Now().UTC().UnixMilli()
+	_, err := db.Exec("Update t_index_source set "+
+		"f_state =?, "+
+		"f_deleted=?, "+
+		"f_updated_at=? "+
 		"where f_id=?",
 		is.State,
 		is.Deleted,
 		tupdate,
 		id)
 
-	if err!=nil{
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func SelectAllPigHouse(db *mysqlconn.NetDevDbConn) ([]string,error) {
+func SelectAllPigHouse(db *mysqlconn.NetDevDbConn) ([]string, error) {
 	query := `SELECT distinct(f_pig_house_code) FROM t_pig_house`
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
@@ -75,7 +75,7 @@ func SelectAllPigHouse(db *mysqlconn.NetDevDbConn) ([]string,error) {
 		return []string{}, err
 	}
 	defer rows.Close()
-	var houses  []string
+	var houses []string
 	for rows.Next() {
 		var ph []byte
 		if err := rows.Scan(&ph); err != nil {
@@ -87,5 +87,5 @@ func SelectAllPigHouse(db *mysqlconn.NetDevDbConn) ([]string,error) {
 		return []string{}, err
 	}
 
-	return houses,nil
+	return houses, nil
 }

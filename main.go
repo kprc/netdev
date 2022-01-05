@@ -73,7 +73,7 @@ func mainRun(_ *cobra.Command, _ []string) {
 
 	go cmdservice.StartCmdService()
 
-	time.Sleep(time.Second*2)
+	time.Sleep(time.Second * 2)
 
 	go mockup.TimeOutLoop()
 
@@ -103,7 +103,6 @@ func waitShutdownSignal() {
 	mockup.StopTimeOutLoop()
 
 	server.GetServerInstance().StopDaemon()
-
 
 	fmt.Printf("\n>>>>>>>>>>process finished(%s)<<<<<<<<<<\n", sig)
 }
