@@ -18,6 +18,7 @@ const (
 	WeighPath     = "weigh"
 	UniphasePath  = "uniphase"
 	TriphasePath  = "triphase"
+	UploadFile    = "upload"
 	ProxyPath     = "proxy"
 	IndexSource   = "index-source"
 )

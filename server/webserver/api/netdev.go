@@ -233,6 +233,8 @@ func (wa *WebApi) IndexSource(writer http.ResponseWriter, request *http.Request)
 	}
 }
 
+func (wa *WebApi)UploadFile(writer http.ResponseWriter, request *http.Request) {
 
+}
 
 

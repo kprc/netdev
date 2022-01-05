@@ -52,7 +52,45 @@ const(
 
 )
 
-func postOneHourData(lastRound *int64) error {
+func posOneDayData(lastRound *int64) error {
+	t:=time.Now().Unix()
+	if t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval {
+		*lastRound = t
+	}else {
+		return nil
+	}
+	db:=mysqlconn.NewMysqlDb()
+	if err:=db.Connect();err!=nil{
+		fmt.Println(err.Error())
+		return err
+	}
+	defer db.Close()
+
+	tBegin := (t / oneDaySecond) * oneDaySecond * 1000
+
+	if houses,err:=sql.SelectAllPigHouse(db);err!=nil{
+		fmt.Println(err.Error())
+		return err
+	}else {
+		for i := 0; i < len(houses); i++ {
+			lastWater, lastFood, lastTri, lastUni := getLastData(db, houses[i])
+
+			if err = IndexSourceInsert(tBegin, pigHouse, houses[i], electricUsage, lastTri+lastUni); err != nil {
+				fmt.Println(err)
+			}
+			if err = IndexSourceInsert(tBegin, pigHouse, houses[i], waterUsage, lastWater); err != nil {
+				fmt.Println(err)
+			}
+			if err = IndexSourceInsert(tBegin, pigHouse, houses[i], foodUsage, lastFood); err != nil {
+				fmt.Println(err)
+			}
+		}
+
+	}
+	return nil
+}
+
+func postOneHourData() error {
 	db:=mysqlconn.NewMysqlDb()
 	if err:=db.Connect();err!=nil{
 		fmt.Println(err.Error())
@@ -84,21 +122,6 @@ func postOneHourData(lastRound *int64) error {
 				fmt.Println(err)
 			}
 
-			if t%oneDaySecond < inaccuracy && (t - *lastRound) > inaccuracyInterval {
-				*lastRound = t
-
-				tBegin := (t / oneDaySecond ) * oneDaySecond * 1000
-
-				if err = IndexSourceInsert(tBegin,pigHouse,houses[i],electricUsage,lastTri+lastUni);err!=nil{
-					fmt.Println(err)
-				}
-				if err = IndexSourceInsert(tBegin,pigHouse,houses[i],waterUsage,lastWater);err!=nil{
-					fmt.Println(err)
-				}
-				if err = IndexSourceInsert(tBegin,pigHouse,houses[i],foodUsage,lastFood);err!=nil{
-					fmt.Println(err)
-				}
-			}
 		}
 	}
 
@@ -122,10 +145,10 @@ func TimeOutLoop() error {
 		now:= time.Now().Unix()
 
 		if now - lastPostTime > oneHourSecond{
-			postOneHourData(&lastRound)
+			postOneHourData()
 			lastPostTime = now
 		}
-
+		posOneDayData(&lastRound)
 		time.Sleep(time.Second)
 	}
 }
