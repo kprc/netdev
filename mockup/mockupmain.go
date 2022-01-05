@@ -54,7 +54,7 @@ const(
 
 func posOneDayData(lastRound *int64) error {
 	t:=time.Now().Unix()
-	if t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval {
+	if (*lastRound == 0) || (t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval) {
 		*lastRound = t
 	}else {
 		return nil
@@ -74,6 +74,9 @@ func posOneDayData(lastRound *int64) error {
 	}else {
 		for i := 0; i < len(houses); i++ {
 			lastWater, lastFood, lastTri, lastUni := getLastData(db, houses[i])
+			if (lastWater + lastFood + lastTri + lastUni) == 0{
+				return nil
+			}
 
 			if err = IndexSourceInsert(tBegin, pigHouse, houses[i], electricUsage, lastTri+lastUni); err != nil {
 				fmt.Println(err)
