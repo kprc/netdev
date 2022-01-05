@@ -54,7 +54,7 @@ const(
 
 func posOneDayData(lastRound *int64) error {
 	t:=time.Now().Unix()
-	if (*lastRound == 0) || (t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval) {
+	if  t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval{
 		*lastRound = t
 	}else {
 		return nil
