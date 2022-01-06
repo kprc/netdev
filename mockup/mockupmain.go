@@ -55,10 +55,12 @@ const (
 
 func posOneDayData(lastRound *int64) error {
 
-	t := time.Now().UTC().Unix()
-	tt := t + 8*3600
-	if tt%oneDaySecond < inaccuracy && (tt-*lastRound) > inaccuracyInterval {
-		*lastRound = tt
+	t := time.Now().UTC().Unix()+ 8*3600
+
+
+	//if *lastRound == 0 || (t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval) {
+	if t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval {
+		*lastRound = t
 	} else {
 		return nil
 	}
@@ -69,7 +71,7 @@ func posOneDayData(lastRound *int64) error {
 	}
 	defer db.Close()
 
-	tBegin := (t/oneDaySecond)*oneDaySecond*1000 - 8*3600000
+	tBegin := (t/oneDaySecond )*oneDaySecond*1000 - 8*3600000
 
 	if houses, err := sql.SelectAllPigHouse(db); err != nil {
 		fmt.Println(err.Error())

@@ -9,7 +9,7 @@ import (
 )
 
 func InsertIndexSource(db *mysqlconn.NetDevDbConn, is *msg.MsgIndexSource) error {
-	tcreate := time.Now().UTC().UnixMilli()
+	//tcreate := time.Now().UTC().UnixMilli()
 
 	_, err := db.Exec("Insert into t_index_source ("+
 		"f_version,"+
@@ -33,8 +33,8 @@ func InsertIndexSource(db *mysqlconn.NetDevDbConn, is *msg.MsgIndexSource) error
 		is.BaseValue,
 		is.State,
 		is.Deleted,
-		tcreate,
-		tcreate)
+		is.CreateAt,
+		is.UpdateAt)
 
 	if err != nil {
 		return err

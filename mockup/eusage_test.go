@@ -79,4 +79,12 @@ func TestTimeTest(t *testing.T) {
 	fmt.Println((now + 8*3600) % 86400)
 
 	fmt.Println((now - 8*3600) % 86400)
+	//tBegin := (t/oneDaySecond +1 )*oneDaySecond*1000 - 8*3600000
+	fmt.Println((now/86400)*86400 *1000 - (8 *3600000))
+
+	tt:=1641398418972 +  8*3600000
+
+	fmt.Println((tt/1000/86400)*86400 )
+
+
 }
