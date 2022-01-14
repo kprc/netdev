@@ -12,13 +12,14 @@ func CellDate(cell string,lastMonth int,lastDay int) (year,day,month int, timest
 	d:=strings.Split(m[1],"日")
 	month = lastMonth
 
-	//fmt.Println(y[0],month,d[0])
-
 	day,_ = strconv.Atoi(d[0])
 	year,_ = strconv.Atoi(y[0])
 
 	if day < lastDay{
 		month ++
+		if month == 13{
+			month = 1
+		}
 	}
 
 	l,_:=time.LoadLocation("UTC")

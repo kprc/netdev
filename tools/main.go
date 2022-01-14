@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/kprc/nbsnetwork/tools"
 	"github.com/kprc/netdev/tools/excel"
 	"github.com/spf13/cobra"
 	"github.com/xuri/excelize/v2"
 	"strconv"
+	"time"
 )
 
 var param = struct {
@@ -18,6 +20,8 @@ var param = struct {
 	mysqlPasswd  string
 	mysqlPort string
 	mysqlDbName string
+	earLabel string
+	timestamp int64
 }{}
 
 var rootCmd = &cobra.Command{
@@ -39,6 +43,7 @@ var excelCmd = &cobra.Command{
 
 	Args: cobra.NoArgs,
 }
+
 var parseExcelCmd = &cobra.Command{
 	Use: "parse",
 
@@ -59,6 +64,13 @@ var inserExcel2DbCmd = &cobra.Command{
 	Run: insertExcel,
 }
 
+var testExcelDbCmd = &cobra.Command{
+	Use: "test",
+	Short: "test Data from db",
+	Long: "test Data from db",
+	Run: testExcel,
+}
+
 const (
 	Version = "0.0.1"
 
@@ -71,18 +83,20 @@ func init() {
 		"v", false, "nd-tools -v")
 
 
-	parseExcelCmd.Flags().StringVarP(&param.excelFile,"excel","e","","excel file name")
+	parseExcelCmd.Flags().StringVarP(&param.excelFile,"excelfile","e","","excel file name")
 	parseExcelCmd.Flags().StringVarP(&param.sheet,"sheet","s","","excel sheet")
 	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlPasswd,"passwd","c","","mysql password")
 	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlHost,"host","d","","mysql host name")
-	inserExcel2DbCmd.Flags().StringVarP(&param.excelFile,"excel","e","","excel file name")
+	inserExcel2DbCmd.Flags().StringVarP(&param.excelFile,"excelfile","e","","excel file name")
 	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlPort,"port","p","3306","mysql service port")
 	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlUser,"user","u","","mysql user name")
 	inserExcel2DbCmd.Flags().StringVarP(&param.sheet,"sheet","s","","excel sheet")
 	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlDbName,"database","r","","mysql database name")
+	testExcelDbCmd.Flags().StringVarP(&param.earLabel,"earlabel","e","","test earlabel")
+	testExcelDbCmd.Flags().Int64VarP(&param.timestamp,"timestamp","t",0,"timestamp")
 
 	rootCmd.AddCommand(excelCmd)
-	excelCmd.AddCommand(parseExcelCmd,inserExcel2DbCmd)
+	excelCmd.AddCommand(parseExcelCmd,inserExcel2DbCmd,testExcelDbCmd)
 
 }
 
@@ -108,17 +122,24 @@ func parseExcel(_ *cobra.Command, _ []string)  {
 		println(err.Error())
 		return
 	}
+	defer f.Close()
 
-	cell, err := f.GetCellValue(param.sheet, "C1")
-	if err != nil {
-		println(err.Error())
+	rows, err := f.GetRows(param.sheet)
+	if err!=nil{
+		fmt.Println(err)
 		return
 	}
-	println(cell)
 
-	y,m,d,ts:=excel.CellDate(cell,8,0)
+	lastDay,lastMonth := 0, 8
+	for idx, colCell := range rows[0] {
+		if colCell != "" && base64.StdEncoding.EncodeToString([]byte(colCell)) != "IA=="{
+			fmt.Println(idx," ")
+			_,lastDay,lastMonth,_=excel.CellDate(colCell,lastMonth,lastDay)
+			fmt.Println("")
+		}
 
-	fmt.Println(y,m,d,ts)
+	}
+
 }
 
 func insertExcel(_ *cobra.Command, _ []string)  {
@@ -156,7 +177,43 @@ func insertExcel(_ *cobra.Command, _ []string)  {
 		return
 	}
 
+}
 
+func testExcel(_ *cobra.Command, _ []string) {
+
+	if param.earLabel == ""{
+		fmt.Println("need ear label ...")
+		return
+	}
+
+	if param.timestamp == 0{
+		fmt.Println("timestamp need...")
+		return
+	}
+
+	port := 0
+
+	if param.mysqlPort != ""{
+		var err error
+		if port,err = strconv.Atoi(param.mysqlPort);err!=nil{
+			fmt.Println(err)
+			return
+		}
+	}
+	e:=excel.NewExcel(param.excelFile,param.sheet,param.mysqlUser,param.mysqlPasswd,param.mysqlHost,param.mysqlDbName,port)
+
+	//if err:=e.Open();err!=nil{
+	//	fmt.Println("open excel error",err)
+	//	return
+	//}
+	//defer e.Close()
+
+	t:=time.Unix(param.timestamp,0)
+
+	if err:=e.TestExcel(param.earLabel,t);err!=nil{
+		fmt.Println(err)
+		return
+	}
 
 }
 

@@ -71,7 +71,7 @@ func (ei *MysqlDB)Close() error  {
 }
 
 func (ei *MysqlDB)Insert2Electricity(earLabel string, usage float64,timeStamp int64) error  {
-	sql:="Insert into electricity (iot_report_time,f_pig_ear_code,f_electricity_usage ) VALUES (?,?,?)"
+	sql:="Insert into electricity (iot_report_time,f_pig_code,f_electricity_usage ) VALUES (?,?,?)"
 	t:=time.Unix(timeStamp,0).UTC()
 	if _,err:=ei.db.Exec(sql,t,earLabel,usage);err!=nil{
 		return err
@@ -79,3 +79,17 @@ func (ei *MysqlDB)Insert2Electricity(earLabel string, usage float64,timeStamp in
 
 	return nil
 }
+
+func (ei *MysqlDB)SelectFromElectricity(earLabel string, time2 time.Time) error {
+	sql:="Select count(*) from electricity where f_pig_code=? and iot_report_time=?"
+
+	var count int
+	if err:=ei.db.QueryRow(sql,earLabel,time2).Scan(&count);err!=nil{
+		return err
+	}
+
+	fmt.Println(count)
+
+	return nil
+}
+
