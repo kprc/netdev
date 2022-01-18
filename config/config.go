@@ -28,15 +28,28 @@ func defaultConf() *NetDevConf {
 		UConf: &UdpServerConf{
 			ListenServer: ":60012",
 		},
-		Db: &DatabaseConf{
-			Host:   "localhost:3306",
-			Driver: "mysql",
-			DbName: "huochain_husbandry",
-			User:   "huochain",
-			Passwd: "test@huochain",
-			//DbName: "netdev",
-			//User:   "root",
-			//Passwd: "Rickey@123",
+		Db: []*DatabaseConf{
+			{
+				Host:   "localhost:3306",
+				Driver: "mysql",
+				DbName: "netdev",
+				User:   "root",
+				Passwd: "Rickey@123",
+			},
+			{
+				Host:   "localhost:3306",
+				Driver: "mysql",
+				DbName: "netdev",
+				User:   "root",
+				Passwd: "Rickey@123",
+			},
+			//{
+			//	Host:   "localhost:3306",
+			//	Driver: "mysql",
+			//	DbName: "huochain_husbandry",
+			//	User:   "huochain",
+			//	Passwd: "test@huochain",
+			//},
 		},
 	}
 }
@@ -130,7 +143,7 @@ type DatabaseConf struct {
 type NetDevConf struct {
 	WConf *WebSeverConf  `json:"w_conf"`
 	UConf *UdpServerConf `json:"u_conf"`
-	Db    *DatabaseConf  `json:"db"`
+	Db    []*DatabaseConf  `json:"db"`
 }
 
 func (nc *NetDevConf) load() error {

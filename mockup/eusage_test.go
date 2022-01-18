@@ -88,3 +88,102 @@ func TestTimeTest(t *testing.T) {
 
 
 }
+
+
+func TestSelectElectricity(t *testing.T) {
+	tm:=time.Date(2021,9,9,0,0,0,0,time.UTC)
+
+	db := mysqlconn.NewMysqlDb()
+
+	if err := db.Connect(); err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	if us,err:=sql.SelectElectricity(db,&tm);err!=nil{
+		fmt.Println(err)
+	}else{
+		for k,v:=range us{
+			fmt.Println(k,v,tm.String())
+		}
+	}
+}
+
+func TestTimeZone(t *testing.T)  {
+	tm:=time.Now()
+
+	l1,_:=time.LoadLocation("")
+	l2,_:=time.LoadLocation("Asia/Shanghai")
+	l3,_:=time.LoadLocation("America/Los_Angeles")
+
+	fmt.Println(tm.Day(),tm.Hour())
+	fmt.Println(tm.In(l1).Day(),tm.In(l1).Hour())
+	fmt.Println(tm.In(l2).Day(),tm.In(l2).Hour())
+	fmt.Println(tm.In(l3).Day(),tm.In(l3).Hour())
+	//
+	//
+	//tm1:=time.Unix(1640188800,0)
+	//
+	//fmt.Println(tm1.Year(),tm1.Month(),tm1.Day(),tm1.Hour(),tm1.Minute())
+	//
+	//
+	//fmt.Println("====")
+	//
+	//now:=time.Now()
+	//
+	//fmt.Println(now.Unix())
+	//
+	//l,_:=time.LoadLocation("Asia/Shanghai")
+	//nowL := now.In(l)
+	//
+	//y:=nowL.Year()
+	//m:=nowL.Month()
+	//d:=nowL.Day()
+	//
+	//ts:=time.Date(y,m,d,0,0,0,0,l)
+	//
+	//ts1:=time.Date(y,m,d,0,0,0,0,time.UTC)
+	//
+	//fmt.Println(ts.Unix(),ts1.Unix())
+
+	//tm:=time.Unix(1640275200,0).UTC()
+	//fmt.Println(tm.Day(),tm.Hour())
+	//
+	//
+	//l2,_:=time.LoadLocation("Asia/Shanghai")
+	//
+	//tmlocal:=tm.In(l2)
+	//
+	//fmt.Println(tmlocal.Day(),tmlocal.Hour())
+
+	testtm:=time.Date(2021,9,9,0,0,0,0,l2)
+
+	fmt.Println(testtm.Unix())
+
+}
+
+func TestGetEletricitys(t *testing.T)  {
+	//l,_:=time.LoadLocation("Asia/Shanghai")
+	//nowL := now.In(l)
+	//
+	//y:=nowL.Year()
+	//m:=nowL.Month()
+	//d:=nowL.Day()
+
+	ts:=time.Date(2021,9,9,0,0,0,0,time.UTC)
+
+	db := mysqlconn.NewMysqlDb()
+
+	if err := db.Connect(); err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	if es,err:=sql.SelectElectricity(db,&ts);err!=nil{
+		fmt.Println(err)
+	}else{
+		for k,v :=range es{
+			fmt.Println(k,v)
+		}
+	}
+}

@@ -46,3 +46,18 @@ func TestIndexSourceInsert2(t *testing.T) {
 	}
 	fmt.Println("success")
 }
+
+func TestIndexSourceBeginTime(t *testing.T)  {
+	db := mysqlconn.NewMysqlDb()
+	if err := db.Connect(); err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	if at,err:=sql.SelectLatestInsertData(db,"CQAN2001",25);err!=nil{
+		fmt.Println(err)
+	}else{
+		fmt.Println(at)
+	}
+
+}

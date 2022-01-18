@@ -26,3 +26,19 @@ func TestTimeOutLoop(t *testing.T) {
 
 	time.Sleep(time.Second * 301)
 }
+
+func TestPostElectricity(t *testing.T) {
+	now:=time.Now()
+	post2IndexSource(now)
+}
+
+
+func TestPostFodder(t *testing.T) {
+	now:=time.Now()
+	post2IndexSource2(now)
+}
+
+func TestPostWater(t *testing.T) {
+	now:=time.Now()
+	post2IndexSource3(now)
+}

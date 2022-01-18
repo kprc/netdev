@@ -54,14 +54,34 @@ var parseExcelCmd = &cobra.Command{
 	Run: parseExcel,
 }
 
-var inserExcel2DbCmd = &cobra.Command{
-	Use: "insert2db",
+var insertElectricityCmd = &cobra.Command{
+	Use: "insertElectricity",
 
-	Short: "insert excel content to mysql databases",
+	Short: "insert excel content of electricity to mysql databases",
 
-	Long: `insert excel content to mysql databases`,
+	Long: `insert excel content of electricity to mysql databases`,
 
-	Run: insertExcel,
+	Run: insertElectricity,
+}
+
+var insertFodderCmd = &cobra.Command{
+	Use: "insertFodder",
+
+	Short: "insert fodder usage to mysql databases",
+
+	Long: `insert fodder usage to mysql databases`,
+
+	Run: insertFodder,
+}
+
+var insertWaterCmd = &cobra.Command{
+	Use: "insertWater",
+
+	Short: "insert water usage to mysql databases",
+
+	Long: `insert water usage to mysql databases`,
+
+	Run: insertWater,
 }
 
 var testExcelDbCmd = &cobra.Command{
@@ -85,18 +105,39 @@ func init() {
 
 	parseExcelCmd.Flags().StringVarP(&param.excelFile,"excelfile","e","","excel file name")
 	parseExcelCmd.Flags().StringVarP(&param.sheet,"sheet","s","","excel sheet")
-	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlPasswd,"passwd","c","","mysql password")
-	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlHost,"host","d","","mysql host name")
-	inserExcel2DbCmd.Flags().StringVarP(&param.excelFile,"excelfile","e","","excel file name")
-	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlPort,"port","p","3306","mysql service port")
-	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlUser,"user","u","","mysql user name")
-	inserExcel2DbCmd.Flags().StringVarP(&param.sheet,"sheet","s","","excel sheet")
-	inserExcel2DbCmd.Flags().StringVarP(&param.mysqlDbName,"database","r","","mysql database name")
+
+
+	insertElectricityCmd.Flags().StringVarP(&param.mysqlPasswd,"passwd","c","","mysql password")
+	insertElectricityCmd.Flags().StringVarP(&param.mysqlHost,"host","d","","mysql host name")
+	insertElectricityCmd.Flags().StringVarP(&param.excelFile,"excelfile","e","","excel file name")
+	insertElectricityCmd.Flags().StringVarP(&param.mysqlPort,"port","p","3306","mysql service port")
+	insertElectricityCmd.Flags().StringVarP(&param.mysqlUser,"user","u","","mysql user name")
+	insertElectricityCmd.Flags().StringVarP(&param.sheet,"sheet","s","","excel sheet")
+	insertElectricityCmd.Flags().StringVarP(&param.mysqlDbName,"database","r","","mysql database name")
+
+	insertFodderCmd.Flags().StringVarP(&param.mysqlPasswd,"passwd","c","","mysql password")
+	insertFodderCmd.Flags().StringVarP(&param.mysqlHost,"host","d","","mysql host name")
+	insertFodderCmd.Flags().StringVarP(&param.excelFile,"excelfile","e","","excel file name")
+	insertFodderCmd.Flags().StringVarP(&param.mysqlPort,"port","p","3306","mysql service port")
+	insertFodderCmd.Flags().StringVarP(&param.mysqlUser,"user","u","","mysql user name")
+	insertFodderCmd.Flags().StringVarP(&param.sheet,"sheet","s","","excel sheet")
+	insertFodderCmd.Flags().StringVarP(&param.mysqlDbName,"database","r","","mysql database name")
+
+
+	insertWaterCmd.Flags().StringVarP(&param.mysqlPasswd,"passwd","c","","mysql password")
+	insertWaterCmd.Flags().StringVarP(&param.mysqlHost,"host","d","","mysql host name")
+	insertWaterCmd.Flags().StringVarP(&param.excelFile,"excelfile","e","","excel file name")
+	insertWaterCmd.Flags().StringVarP(&param.mysqlPort,"port","p","3306","mysql service port")
+	insertWaterCmd.Flags().StringVarP(&param.mysqlUser,"user","u","","mysql user name")
+	insertWaterCmd.Flags().StringVarP(&param.sheet,"sheet","s","","excel sheet")
+	insertWaterCmd.Flags().StringVarP(&param.mysqlDbName,"database","r","","mysql database name")
+
+
 	testExcelDbCmd.Flags().StringVarP(&param.earLabel,"earlabel","e","","test earlabel")
 	testExcelDbCmd.Flags().Int64VarP(&param.timestamp,"timestamp","t",0,"timestamp")
 
 	rootCmd.AddCommand(excelCmd)
-	excelCmd.AddCommand(parseExcelCmd,inserExcel2DbCmd,testExcelDbCmd)
+	excelCmd.AddCommand(parseExcelCmd,insertElectricityCmd,testExcelDbCmd,insertFodderCmd,insertWaterCmd)
 
 }
 
@@ -142,7 +183,7 @@ func parseExcel(_ *cobra.Command, _ []string)  {
 
 }
 
-func insertExcel(_ *cobra.Command, _ []string)  {
+func insertElectricity(_ *cobra.Command, _ []string)  {
 	if param.excelFile == ""{
 		fmt.Println("please input excel file")
 		return
@@ -172,7 +213,82 @@ func insertExcel(_ *cobra.Command, _ []string)  {
 	defer e.Close()
 
 
-	if err:=e.ReadAndInsert();err!=nil{
+	if err:=e.ReadAndInsertElectricity();err!=nil{
+		fmt.Println(err)
+		return
+	}
+
+}
+
+
+func insertFodder(_ *cobra.Command, _ []string)  {
+	if param.excelFile == ""{
+		fmt.Println("please input excel file")
+		return
+	}
+
+	if b:=tools.FileExists(param.excelFile);!b{
+		fmt.Println("excel file not exists")
+		return
+	}
+
+	port := 0
+
+	if param.mysqlPort != ""{
+		var err error
+		if port,err = strconv.Atoi(param.mysqlPort);err!=nil{
+			fmt.Println(err)
+			return
+		}
+	}
+
+	e:=excel.NewExcel(param.excelFile,param.sheet,param.mysqlUser,param.mysqlPasswd,param.mysqlHost,param.mysqlDbName,port)
+
+	if err:=e.Open();err!=nil{
+		fmt.Println("open excel error",err)
+		return
+	}
+	defer e.Close()
+
+
+	if err:=e.ReadAndInsertFodder();err!=nil{
+		fmt.Println(err)
+		return
+	}
+
+}
+
+func insertWater(_ *cobra.Command, _ []string)  {
+	if param.excelFile == ""{
+		fmt.Println("please input excel file")
+		return
+	}
+
+	if b:=tools.FileExists(param.excelFile);!b{
+		fmt.Println("excel file not exists")
+		return
+	}
+
+	port := 0
+
+	if param.mysqlPort != ""{
+		var err error
+		if port,err = strconv.Atoi(param.mysqlPort);err!=nil{
+			fmt.Println(err)
+			return
+		}
+	}
+
+	e:=excel.NewExcel(param.excelFile,param.sheet,param.mysqlUser,param.mysqlPasswd,param.mysqlHost,param.mysqlDbName,port)
+
+	if err:=e.Open();err!=nil{
+		fmt.Println("open excel error",err)
+		return
+	}
+	defer e.Close()
+
+
+	if err:=e.ReadAndInsertWater();err!=nil{
 		fmt.Println(err)
 		return
 	}
