@@ -141,9 +141,9 @@ type DatabaseConf struct {
 }
 
 type NetDevConf struct {
-	WConf *WebSeverConf  `json:"w_conf"`
-	UConf *UdpServerConf `json:"u_conf"`
-	Db    []*DatabaseConf  `json:"db"`
+	WConf *WebSeverConf   `json:"w_conf"`
+	UConf *UdpServerConf  `json:"u_conf"`
+	Db    []*DatabaseConf `json:"db"`
 }
 
 func (nc *NetDevConf) load() error {

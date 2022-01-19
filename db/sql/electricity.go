@@ -8,7 +8,7 @@ import (
 )
 
 func SelectElectricity(db *mysqlconn.NetDevDbConn, tm *time.Time) (map[string]float64, error) {
-	sql:="select f_pig_code,f_electricity_usage from electricity where iot_report_time = ?"
+	sql := "select f_pig_code,f_electricity_usage from electricity where iot_report_time = ?"
 
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
@@ -19,7 +19,7 @@ func SelectElectricity(db *mysqlconn.NetDevDbConn, tm *time.Time) (map[string]fl
 		return nil, err
 	}
 	defer stmt.Close()
-	rows, err := stmt.QueryContext(ctx,*tm)
+	rows, err := stmt.QueryContext(ctx, *tm)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func SelectElectricity(db *mysqlconn.NetDevDbConn, tm *time.Time) (map[string]fl
 	for rows.Next() {
 		var ph []byte
 		var usage float64
-		if err := rows.Scan(&ph,&usage); err != nil {
+		if err := rows.Scan(&ph, &usage); err != nil {
 			return nil, err
 		}
 		usages[string(ph)] = usage
@@ -40,4 +40,3 @@ func SelectElectricity(db *mysqlconn.NetDevDbConn, tm *time.Time) (map[string]fl
 	return usages, nil
 
 }
-

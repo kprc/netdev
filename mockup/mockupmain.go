@@ -56,8 +56,7 @@ const (
 
 func posOneDayData(lastRound *int64) error {
 
-	t := time.Now().UTC().Unix()+ 8*3600
-
+	t := time.Now().UTC().Unix() + 8*3600
 
 	//if *lastRound == 0 || (t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval) {
 	if t%oneDaySecond < inaccuracy && (t-*lastRound) > inaccuracyInterval {
@@ -72,14 +71,14 @@ func posOneDayData(lastRound *int64) error {
 	}
 	defer db.Close()
 
-	tBegin := (t/oneDaySecond )*oneDaySecond*1000 - 8*3600000
+	tBegin := (t/oneDaySecond)*oneDaySecond*1000 - 8*3600000
 
 	if houses, err := sql.SelectAllPigHouse(db); err != nil {
 		fmt.Println(err.Error())
 		return err
 	} else {
 
-		for _, house:=range houses{
+		for _, house := range houses {
 			lastWater, lastFood, lastTri, lastUni := getLastData(db, house)
 			if (lastWater + lastFood + lastTri + lastUni) == 0 {
 				return nil
@@ -101,61 +100,61 @@ func posOneDayData(lastRound *int64) error {
 }
 
 const (
-	LocalDb = 0
+	LocalDb  = 0
 	RemoteDb = 1
 )
 
-func sumPigUsages(pigUsages map[string]float64, oneHousePig map[string]struct{}) float64  {
-	sum:=float64(0)
-	for k,u:=range pigUsages{
-		if _,ok:=oneHousePig[k];ok{
+func sumPigUsages(pigUsages map[string]float64, oneHousePig map[string]struct{}) float64 {
+	sum := float64(0)
+	for k, u := range pigUsages {
+		if _, ok := oneHousePig[k]; ok {
 			sum += u
 		}
 	}
 	return sum
 }
 
-func postElectricity(now time.Time,dbLocal,dbRemote *mysqlconn.NetDevDbConn, pigHouses map[int]string)  {
+func postElectricity(now time.Time, dbLocal, dbRemote *mysqlconn.NetDevDbConn, pigHouses map[int]string) {
 
-	l,_:=time.LoadLocation("Asia/Shanghai")
+	l, _ := time.LoadLocation("Asia/Shanghai")
 	nowL := now.In(l)
 
-	y:=nowL.Year()
-	m:=nowL.Month()
-	d:=nowL.Day()
+	y := nowL.Year()
+	m := nowL.Month()
+	d := nowL.Day()
 
-	ts:=time.Date(y,m,d,0,0,0,0,time.UTC)
-	for{
-		allElectricitys, err:= sql.SelectElectricity(dbRemote,&ts)
-		if err!=nil || len(allElectricitys) == 0{
+	ts := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	for {
+		allElectricitys, err := sql.SelectElectricity(dbRemote, &ts)
+		if err != nil || len(allElectricitys) == 0 {
 			fmt.Println(err)
 			return
 		}
-		tsLocal := time.Date(y,m,d,0,0,0,0,l)
-		for pigIdx,house:=range pigHouses{
+		tsLocal := time.Date(y, m, d, 0, 0, 0, 0, l)
+		for pigIdx, house := range pigHouses {
 			var beginat int64
-			if beginat,err=sql.SelectIndexData(dbLocal,house,25,tsLocal.UnixMilli());(err!=nil)|| (beginat == 0){
+			if beginat, err = sql.SelectIndexData(dbLocal, house, 25, tsLocal.UnixMilli()); (err != nil) || (beginat == 0) {
 				var codes map[string]struct{}
-				codes,err=sql.SelectSwinePigCodes(dbLocal,pigIdx)
-				if err!=nil{
-					fmt.Println("select codes failed",err)
+				codes, err = sql.SelectSwinePigCodes(dbLocal, pigIdx)
+				if err != nil {
+					fmt.Println("select codes failed", err)
 					continue
 				}
-				usage:=sumPigUsages(allElectricitys,codes)
-				if usage == 0{
+				usage := sumPigUsages(allElectricitys, codes)
+				if usage == 0 {
 					continue
 				}
 				//fmt.Println(usage,house)
-				if err = insert2IndexSource(dbLocal,tsLocal.UnixMilli(),usage,25,2,house);err!=nil{
+				if err = insert2IndexSource(dbLocal, tsLocal.UnixMilli(), usage, 25, 2, house); err != nil {
 					fmt.Println(err)
 				}
-			}else {
-				fmt.Println(beginat,"------")
+			} else {
+				fmt.Println(beginat, "------")
 				return
 			}
 		}
 		timestamp := ts.Unix() - 86400
-		ts = time.Unix(timestamp,0).UTC()
+		ts = time.Unix(timestamp, 0).UTC()
 		y = ts.In(l).Year()
 		m = ts.In(l).Month()
 		d = ts.In(l).Day()
@@ -180,7 +179,7 @@ func insert2IndexSource(db *mysqlconn.NetDevDbConn, beginAt int64, usage float64
 		UpdateAt:     t,
 	}
 
-	if err:=sql.InsertIndexSource(db,is);err!=nil{
+	if err := sql.InsertIndexSource(db, is); err != nil {
 		return err
 	}
 
@@ -188,93 +187,92 @@ func insert2IndexSource(db *mysqlconn.NetDevDbConn, beginAt int64, usage float64
 
 }
 
+func postWater(now time.Time, dbLocal, dbRemote *mysqlconn.NetDevDbConn, pigHouses map[int]string) {
 
-func postWater(now time.Time,dbLocal,dbRemote *mysqlconn.NetDevDbConn, pigHouses map[int]string)  {
-
-	l,_:=time.LoadLocation("Asia/Shanghai")
+	l, _ := time.LoadLocation("Asia/Shanghai")
 	nowL := now.In(l)
 
-	y:=nowL.Year()
-	m:=nowL.Month()
-	d:=nowL.Day()
+	y := nowL.Year()
+	m := nowL.Month()
+	d := nowL.Day()
 
-	ts:=time.Date(y,m,d,0,0,0,0,time.UTC)
-	for{
+	ts := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	for {
 
-		allWaters, err:= sql.SelectWaters(dbRemote,&ts)
-		if err!=nil||len(allWaters) == 0{
+		allWaters, err := sql.SelectWaters(dbRemote, &ts)
+		if err != nil || len(allWaters) == 0 {
 			fmt.Println(err)
 			return
 		}
-		tsLocal := time.Date(y,m,d,0,0,0,0,l)
-		for pigIdx,house:=range pigHouses{
+		tsLocal := time.Date(y, m, d, 0, 0, 0, 0, l)
+		for pigIdx, house := range pigHouses {
 			var beginat int64
-			if beginat,err=sql.SelectIndexData(dbLocal,house,26,tsLocal.UnixMilli());(err!=nil)|| (beginat == 0){
+			if beginat, err = sql.SelectIndexData(dbLocal, house, 26, tsLocal.UnixMilli()); (err != nil) || (beginat == 0) {
 				var codes map[string]struct{}
-				codes,err=sql.SelectSwinePigCodes(dbLocal,pigIdx)
-				if err!=nil{
-					fmt.Println("select codes failed",err)
+				codes, err = sql.SelectSwinePigCodes(dbLocal, pigIdx)
+				if err != nil {
+					fmt.Println("select codes failed", err)
 					continue
 				}
-				usage:=sumPigUsages(allWaters,codes)
-				if usage == 0{
+				usage := sumPigUsages(allWaters, codes)
+				if usage == 0 {
 					continue
 				}
-				if err = insert2IndexSource(dbLocal,tsLocal.UnixMilli(),usage,26,2,house);err!=nil{
+				if err = insert2IndexSource(dbLocal, tsLocal.UnixMilli(), usage, 26, 2, house); err != nil {
 					fmt.Println(err)
 				}
-			}else {
+			} else {
 				return
 			}
 		}
 		timestamp := ts.Unix() - 86400
-		ts = time.Unix(timestamp,0).UTC()
+		ts = time.Unix(timestamp, 0).UTC()
 		y = ts.In(l).Year()
 		m = ts.In(l).Month()
 		d = ts.In(l).Day()
 	}
 }
 
-func postFodder(now time.Time,dbLocal,dbRemote *mysqlconn.NetDevDbConn, pigHouses map[int]string)  {
+func postFodder(now time.Time, dbLocal, dbRemote *mysqlconn.NetDevDbConn, pigHouses map[int]string) {
 
-	l,_:=time.LoadLocation("Asia/Shanghai")
+	l, _ := time.LoadLocation("Asia/Shanghai")
 	nowL := now.In(l)
 
-	y:=nowL.Year()
-	m:=nowL.Month()
-	d:=nowL.Day()
+	y := nowL.Year()
+	m := nowL.Month()
+	d := nowL.Day()
 
-	ts:=time.Date(y,m,d,0,0,0,0,time.UTC)
-	for{
+	ts := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	for {
 
-		allfodders, err:= sql.SelectFodders(dbRemote,&ts)
-		if err!=nil || len(allfodders) == 0{
+		allfodders, err := sql.SelectFodders(dbRemote, &ts)
+		if err != nil || len(allfodders) == 0 {
 			fmt.Println(err)
 			return
 		}
-		tsLocal := time.Date(y,m,d,0,0,0,0,l)
-		for pigIdx,house:=range pigHouses{
+		tsLocal := time.Date(y, m, d, 0, 0, 0, 0, l)
+		for pigIdx, house := range pigHouses {
 			var beginat int64
-			if beginat,err=sql.SelectIndexData(dbLocal,house,27,tsLocal.UnixMilli());(err!=nil)|| (beginat == 0){
+			if beginat, err = sql.SelectIndexData(dbLocal, house, 27, tsLocal.UnixMilli()); (err != nil) || (beginat == 0) {
 				var codes map[string]struct{}
-				codes,err=sql.SelectSwinePigCodes(dbLocal,pigIdx)
-				if err!=nil{
-					fmt.Println("select codes failed",err)
+				codes, err = sql.SelectSwinePigCodes(dbLocal, pigIdx)
+				if err != nil {
+					fmt.Println("select codes failed", err)
 					continue
 				}
-				usage:=sumPigUsages(allfodders,codes)
-				if usage == 0{
+				usage := sumPigUsages(allfodders, codes)
+				if usage == 0 {
 					continue
 				}
-				if err = insert2IndexSource(dbLocal,tsLocal.UnixMilli(),usage,27,2,house);err!=nil{
+				if err = insert2IndexSource(dbLocal, tsLocal.UnixMilli(), usage, 27, 2, house); err != nil {
 					fmt.Println(err)
 				}
-			}else {
+			} else {
 				return
 			}
 		}
 		timestamp := ts.Unix() - 86400
-		ts = time.Unix(timestamp,0).UTC()
+		ts = time.Unix(timestamp, 0).UTC()
 		y = ts.In(l).Year()
 		m = ts.In(l).Month()
 		d = ts.In(l).Day()
@@ -282,7 +280,7 @@ func postFodder(now time.Time,dbLocal,dbRemote *mysqlconn.NetDevDbConn, pigHouse
 }
 
 func post2IndexSource(now time.Time) error {
-	cfg:=config.GetNetDevConf()
+	cfg := config.GetNetDevConf()
 	dbLocal := mysqlconn.NewMysqlDb1(cfg.Db[LocalDb])
 	if err := dbLocal.Connect(); err != nil {
 		fmt.Println(err.Error())
@@ -301,25 +299,22 @@ func post2IndexSource(now time.Time) error {
 	//j,_=json.MarshalIndent(cfg.Db[RemoteDb]," ","\t")
 	//fmt.Println(string(j))
 
-	pighouses,err:=sql.SelectAllPigHouse(dbLocal)
-	if err!=nil{
+	pighouses, err := sql.SelectAllPigHouse(dbLocal)
+	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
-	postElectricity(now,dbLocal,dbRemote,pighouses)
-	//postWater(now,dbLocal,dbRemote,pighouses)
-	//postFodder(now,dbLocal,dbRemote,pighouses)
+	postElectricity(now, dbLocal, dbRemote, pighouses)
+	postWater(now, dbLocal, dbRemote, pighouses)
+	postFodder(now, dbLocal, dbRemote, pighouses)
 
 	return nil
 
-
-
 }
-
 
 func post2IndexSource2(now time.Time) error {
-	cfg:=config.GetNetDevConf()
+	cfg := config.GetNetDevConf()
 	dbLocal := mysqlconn.NewMysqlDb1(cfg.Db[LocalDb])
 	if err := dbLocal.Connect(); err != nil {
 		fmt.Println(err.Error())
@@ -338,25 +333,22 @@ func post2IndexSource2(now time.Time) error {
 	//j,_=json.MarshalIndent(cfg.Db[RemoteDb]," ","\t")
 	//fmt.Println(string(j))
 
-	pighouses,err:=sql.SelectAllPigHouse(dbLocal)
-	if err!=nil{
+	pighouses, err := sql.SelectAllPigHouse(dbLocal)
+	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
 	//postElectricity(now,dbLocal,dbRemote,pighouses)
 	//postWater(now,dbLocal,dbRemote,pighouses)
-	postFodder(now,dbLocal,dbRemote,pighouses)
+	postFodder(now, dbLocal, dbRemote, pighouses)
 
 	return nil
 
-
-
 }
 
-
 func post2IndexSource3(now time.Time) error {
-	cfg:=config.GetNetDevConf()
+	cfg := config.GetNetDevConf()
 	dbLocal := mysqlconn.NewMysqlDb1(cfg.Db[LocalDb])
 	if err := dbLocal.Connect(); err != nil {
 		fmt.Println(err.Error())
@@ -375,19 +367,17 @@ func post2IndexSource3(now time.Time) error {
 	//j,_=json.MarshalIndent(cfg.Db[RemoteDb]," ","\t")
 	//fmt.Println(string(j))
 
-	pighouses,err:=sql.SelectAllPigHouse(dbLocal)
-	if err!=nil{
+	pighouses, err := sql.SelectAllPigHouse(dbLocal)
+	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
 	//postElectricity(now,dbLocal,dbRemote,pighouses)
-	postWater(now,dbLocal,dbRemote,pighouses)
+	postWater(now, dbLocal, dbRemote, pighouses)
 	//postFodder(now,dbLocal,dbRemote,pighouses)
 
 	return nil
-
-
 
 }
 
@@ -403,7 +393,7 @@ func postOneHourData() error {
 		fmt.Println(err.Error())
 		return err
 	} else {
-		for _,house:=range houses{
+		for _, house := range houses {
 			lastWater, lastFood, lastTri, lastUni := getLastData(db, house)
 			t := time.Now().UTC().Unix()
 
@@ -434,7 +424,7 @@ func TimeOutLoop2() error {
 
 	lastTime := int64(0)
 
-	for  {
+	for {
 		select {
 		case <-quit:
 			return nil
@@ -442,15 +432,15 @@ func TimeOutLoop2() error {
 
 		}
 
-		now:=time.Now()
+		now := time.Now()
 
-		if now.Unix() - lastTime < 300{
+		if now.Unix()-lastTime < 300 {
 			time.Sleep(time.Second)
 			continue
 		}
 
-		l,err:=time.LoadLocation("Asia/Shanghai")
-		if err!=nil{
+		l, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
 			return err
 		}
 		if now.In(l).Hour() == 0 && now.In(l).Minute() == 30 {
@@ -460,7 +450,6 @@ func TimeOutLoop2() error {
 		time.Sleep(time.Second)
 	}
 }
-
 
 func TimeOutLoop() error {
 

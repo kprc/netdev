@@ -8,40 +8,40 @@ import (
 )
 
 type NetDevDbConn struct {
-	user string
+	user   string
 	passwd string
-	host string
+	host   string
 	dbName string
 	driver string
 	*sql.DB
 }
 
 func NewMysqlDb() *NetDevDbConn {
-	dbconf:=config.GetNetDevConf().Db[0]
+	dbconf := config.GetNetDevConf().Db[0]
 	return &NetDevDbConn{
-		user: dbconf.User,
+		user:   dbconf.User,
 		passwd: dbconf.Passwd,
-		host: dbconf.Host,
+		host:   dbconf.Host,
 		dbName: dbconf.DbName,
 		driver: dbconf.Driver,
 	}
 }
 
-func NewMysqlDb1(conf *config.DatabaseConf) *NetDevDbConn  {
+func NewMysqlDb1(conf *config.DatabaseConf) *NetDevDbConn {
 	return &NetDevDbConn{
-		user: conf.User,
+		user:   conf.User,
 		passwd: conf.Passwd,
-		host: conf.Host,
+		host:   conf.Host,
 		dbName: conf.DbName,
 		driver: conf.Driver,
 	}
 }
 
-func NewMysqlDb2(user,passwd,host,dbname,driver string) *NetDevDbConn {
+func NewMysqlDb2(user, passwd, host, dbname, driver string) *NetDevDbConn {
 	return &NetDevDbConn{
-		user: user,
+		user:   user,
 		passwd: passwd,
-		host: host,
+		host:   host,
 		dbName: dbname,
 		driver: driver,
 	}

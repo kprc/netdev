@@ -80,7 +80,7 @@ func SelectAllPigHouse(db *mysqlconn.NetDevDbConn) (map[int]string, error) {
 	for rows.Next() {
 		var ph []byte
 		var id int
-		if err := rows.Scan(&ph,&id); err != nil {
+		if err := rows.Scan(&ph, &id); err != nil {
 			return nil, err
 		}
 		houses[id] = string(ph)
@@ -92,35 +92,33 @@ func SelectAllPigHouse(db *mysqlconn.NetDevDbConn) (map[int]string, error) {
 	return houses, nil
 }
 
-func SelectLatestInsertData(db *mysqlconn.NetDevDbConn,house string, ftype int) (int64,error){
-	sql:="select f_begin_at from t_index_source where f_category = 2 and  f_type=? and f_category_code=? order by f_begin_at desc limit 1"
+func SelectLatestInsertData(db *mysqlconn.NetDevDbConn, house string, ftype int) (int64, error) {
+	sql := "select f_begin_at from t_index_source where f_category = 2 and  f_type=? and f_category_code=? order by f_begin_at desc limit 1"
 
-	row:=db.QueryRow(sql,ftype, house)
+	row := db.QueryRow(sql, ftype, house)
 
-	t:=int64(0)
+	t := int64(0)
 
-	if err:=row.Scan(&t);err!=nil{
-		return 0,err
+	if err := row.Scan(&t); err != nil {
+		return 0, err
 	}
 
-	return t,nil
+	return t, nil
 }
 
-func SelectIndexData(db *mysqlconn.NetDevDbConn,house string, ftype int, beginAt int64) (int64, error) {
-	fmt.Println(ftype,beginAt,house)
-	sql:="Select f_begin_at from t_index_source where  f_category=2 and  f_category_code=? and f_type=? and f_begin_at=?"
+func SelectIndexData(db *mysqlconn.NetDevDbConn, house string, ftype int, beginAt int64) (int64, error) {
+	fmt.Println(ftype, beginAt, house)
+	sql := "Select f_begin_at from t_index_source where  f_category=2 and  f_category_code=? and f_type=? and f_begin_at=?"
 
-	row:=db.QueryRow(sql,house,ftype,  beginAt)
+	row := db.QueryRow(sql, house, ftype, beginAt)
 
+	t := int64(0)
 
-	t:=int64(0)
-
-
-	if err:=row.Scan(&t);err!=nil{
+	if err := row.Scan(&t); err != nil {
 		fmt.Println(err)
-		return 0,err
+		return 0, err
 	}
 
 	//fmt.Println(id,t,fc,string(code),ft)
-	return t,nil
+	return t, nil
 }

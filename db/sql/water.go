@@ -89,9 +89,8 @@ func SelectWaterUsage(db *mysqlconn.NetDevDbConn, room string) (float64, error) 
 	return count, nil
 }
 
-
 func SelectWaters(db *mysqlconn.NetDevDbConn, tm *time.Time) (map[string]float64, error) {
-	sql:="select f_pig_code,f_water_usage from water where iot_report_time = ?"
+	sql := "select f_pig_code,f_water_usage from water where iot_report_time = ?"
 
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
@@ -102,7 +101,7 @@ func SelectWaters(db *mysqlconn.NetDevDbConn, tm *time.Time) (map[string]float64
 		return nil, err
 	}
 	defer stmt.Close()
-	rows, err := stmt.QueryContext(ctx,*tm)
+	rows, err := stmt.QueryContext(ctx, *tm)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +110,7 @@ func SelectWaters(db *mysqlconn.NetDevDbConn, tm *time.Time) (map[string]float64
 	for rows.Next() {
 		var ph []byte
 		var usage float64
-		if err := rows.Scan(&ph,&usage); err != nil {
+		if err := rows.Scan(&ph, &usage); err != nil {
 			return nil, err
 		}
 		usages[string(ph)] = usage

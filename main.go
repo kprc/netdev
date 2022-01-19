@@ -75,7 +75,7 @@ func mainRun(_ *cobra.Command, _ []string) {
 
 	time.Sleep(time.Second * 2)
 
-	go mockup.TimeOutLoop()
+	go mockup.TimeOutLoop2()
 
 	waitShutdownSignal()
 }
